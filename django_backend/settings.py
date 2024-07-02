@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_yasg',
-    'newapp',
+    'product',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -78,7 +79,7 @@ DATABASES = {
         'USER': env('DATABASE_USER'),
         'PASSWORD': env('DATABASE_PASS'),
         'HOST': env('DATABASE_HOST'),
-        'PORT': '3306',
+        'PORT': '3308',
     }
 }
 
