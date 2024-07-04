@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'product',
-    'user',
 ]
 
 MIDDLEWARE = [
@@ -79,7 +78,7 @@ DATABASES = {
         'USER': env('DATABASE_USER'),
         'PASSWORD': env('DATABASE_PASS'),
         'HOST': env('DATABASE_HOST'),
-        'PORT': '3308',
+        'PORT': '3306',
     }
 }
 
