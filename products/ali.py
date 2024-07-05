@@ -25,7 +25,7 @@ class product_detail_API(APIView):
         keyword = request.data
 
         client = iop.IopClient(url, appKey, appSecret)
-        request = iop.IopRequest("aliexpress.affiliate.product.query")
+        request = iop.IopRequest("aliexpress.affiliate.products.query")
         request.add_api_param("keywords", keyword)
         response = client.execute(request)
         serializer = ProductSerializer(response)
