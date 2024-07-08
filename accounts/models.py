@@ -8,6 +8,8 @@ class Account(AbstractBaseUser):
     name = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(default=datetime.datetime.now)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     objects = AccountManager()
 
