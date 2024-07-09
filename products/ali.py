@@ -4,17 +4,16 @@ from .models import Product
 from .serializers import ProductSerializer
 from rest_framework import status
 from django.contrib.sites import requests
-import iop
+from .iop import base
 import environ
 
 env = environ.Env()
 env.read_env()
 
-# Ali API 관련 설정 (보류)
-url = ""
-tracking_id = ""
-appKey = ""
-appSecret = ""
+URL = env('ALI_URL')
+APP_KEY = env('ALI_APPKEY')
+APP_SECRET = env('ALI_APPSECRET')
+
 
 class product_detail_API(APIView):
     # SELECT
@@ -29,8 +28,8 @@ class product_detail_API(APIView):
         keyword = 'mp3' # example
         category_id = '44' #example (키워드마다 카테고리 아이디 다르게 해야됨)
 
-        client = iop.IopClient(env('ALI_URL'), env('ALI_APPKEY'), env('ALI_APPSECRET'))
-        request = iop.IopRequest('aliexpress.affiliate.product.query')
+        client = base.IopClient(URL, APP_KEY, APP_SECRET)
+        request = base.IopRequest('aliexpress.affiliate.product.query')
         request.add_api_param('app_signature', '') # API signature을 입력해야되는데 그런거 없음
         request.add_api_param('category_ids', category_id) # 상품이 어떤 종류로 되어 있는지
         request.add_api_param('fields', 'commission_rate,sale_price') # Respond parameter list. eg: commission_rate,sale_price

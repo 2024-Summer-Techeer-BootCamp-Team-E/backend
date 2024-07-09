@@ -1,12 +1,16 @@
 from python import iop
 import time
+import environ
 
-url = "https://api-sg.aliexpress.com/sync"
-appkey = '508056'
-appSecret = '5feFzPuqz9utypMWVXKG4bdwGKGXUI36'
+env = environ.Env()
+env.read_env()
+
+URL = env('ALI_URL')
+APP_KEY = env('ALI_APPKEY')
+APP_SECRET = env('ALI_APPSECRET')
 
 start_time = time.time()
-client = iop.IopClient(url, appkey,appSecret)
+client = iop.IopClient(URL, APP_KEY, APP_SECRET)
 request = iop.IopRequest('aliexpress.affiliate.product.query')
 request.add_api_param('app_signature', '') # API signature을 입력해야되는데 그런거 없음
 request.add_api_param('category_ids', '44') # 상품이 어떤 종류로 되어 있는지
