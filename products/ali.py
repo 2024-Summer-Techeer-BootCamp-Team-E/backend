@@ -25,9 +25,9 @@ class product_detail_API(APIView):
 
     # INSERT
     def post(self, request):
-        keyword = request.data
-
-        category_id = 44 #example (키워드마다 카테고리 아이디 다르게 해야됨)
+        #keyword = request.data
+        keyword = 'mp3' # example
+        category_id = '44' #example (키워드마다 카테고리 아이디 다르게 해야됨)
 
         client = iop.IopClient(env('ALI_URL'), env('ALI_APPKEY'), env('ALI_APPSECRET'))
         request = iop.IopRequest('aliexpress.affiliate.product.query')
