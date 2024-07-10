@@ -1,5 +1,4 @@
 from django.db import models
-import datetime
 # Create your models here.
 
 class Product(models.Model):
@@ -11,6 +10,6 @@ class Product(models.Model):
   currency_id = models.IntegerField()   #화폐 단위
   link = models.URLField()
   image_url = models.URLField()
-  created_at = models.DateTimeField(default=datetime.datetime.now)
+  created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
   is_deleted = models.BooleanField(default=False)
