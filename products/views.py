@@ -1,3 +1,10 @@
 from django.http import HttpResponse
-def index(request):
-    return HttpResponse("안녕하세요 pybo에 오신것을 환영합니다.")
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from .serializers import ProductSerializer
+
+class ProductInfo(generics.GenericAPIView):
+    serializer_class = ProductSerializer

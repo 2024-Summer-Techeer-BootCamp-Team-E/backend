@@ -6,3 +6,8 @@ class ProductSerializer(serializers.ModelSerializer):
     model = Product
     fields = '__all__'
 
+    def search(self, data):
+      category_id = data.get('category_id')
+      keword = data.get('keyword')
+
+
