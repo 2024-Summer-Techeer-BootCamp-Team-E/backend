@@ -24,8 +24,9 @@ class product_detail_API(APIView):
 
     # INSERT
     def post(self, request):
+
         #keyword = request.data
-        keyword = request.data.get('keyword', 'mp3') # example
+        keyword = Product.objects.get('keyword', 'mp3') # example
         category_id = request.data.get('category_id', '44') #example (키워드마다 카테고리 아이디 다르게 해야됨)
 
         client = base.IopClient(URL, APP_KEY, APP_SECRET)
