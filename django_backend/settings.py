@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'products',
     'accounts',
     'likeProducts',
+    'categories',
     'rest_framework.authtoken',
 ]
 
@@ -148,8 +149,9 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': False,
-    'ALGORITHM': 'HS256','SIGNING_KEY': SECRET_KEY,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
@@ -174,4 +176,7 @@ SWAGGER_SETTINGS = {
             'in': 'header'
         }
     },
+    'USE_SESSION_AUTH': False,  # 세션 인증을 사용하지 않도록 설정
+    'DEFAULT_API_KEY_NAME': 'Authorization',  # 기본 API 키 이름 설정
+    'DEFAULT_API_KEY_PREFIX': 'Bearer',  # Bearer prefix 설정
 }
