@@ -4,7 +4,7 @@ from .managers import AccountManager
 
 class Account(AbstractBaseUser):
     id = models.AutoField(primary_key=True)
-    user_id = models.CharField(max_length=255, unique=True)
+    email = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -13,8 +13,8 @@ class Account(AbstractBaseUser):
 
     objects = AccountManager()
 
-    USERNAME_FIELD = 'user_id'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
     def __str__(self):
-        return self.user_id
+        return self.email
