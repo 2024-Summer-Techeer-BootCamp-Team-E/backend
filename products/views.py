@@ -1,3 +1,6 @@
 from django.http import HttpResponse
-def index(request):
-    return HttpResponse("안녕하세요 pybo에 오신것을 환영합니다.")
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import authenticate
+from .serializers import ProductSerializer
+

@@ -1,0 +1,103 @@
+{
+  "aliexpress_affiliate_product_query_response": {
+    "resp_result": {
+      "result": {
+        "current_record_count": 2,
+        "total_record_count": 6368,
+        "current_page_no": 1,
+        "products": {
+          "product": [
+
+          aliexpress_affiliate_product_query_response.resp_result.result.products.product.app_sale_price
+
+
+            {
+              "app_sale_price": "1.01",
+              "original_price": "1.26",
+              "product_detail_url": "https://ko.aliexpress.com/item/1005003171612071.html?pdp_npi=4%40dis%21KRW%211789%211434%21%21%211.26%211.01%21%402140daab17207269850386646d13c9%2112000024480047281%21affd%21%21%21",
+              "product_small_image_urls": {
+                "string": [
+                  "https://ae01.alicdn.com/kf/H2af1540e5ff645eca3df64862f040044J.jpg",
+                  "https://ae01.alicdn.com/kf/Hda65b063c08b4bb8a4bc1aa833d582ccf.jpg",
+                  "https://ae01.alicdn.com/kf/Hb55b6917cf0f40a3bc07d21d33a6c253Z.jpg",
+                  "https://ae01.alicdn.com/kf/H630532c150eb4a11b5b1856d0f7f0c47J.jpg",
+                  "https://ae01.alicdn.com/kf/Hf680cf54fa034ffcb54a3c7c848228d1T.jpg",
+                  "https://ae01.alicdn.com/kf/Hfa710a1bf29547d19d409de8bfd6a2943.jpg"
+                ]
+              },
+              "second_level_category_name": "부속품 & 부속",
+              "target_sale_price": "1434",
+              "second_level_category_id": 629,
+              "discount": "19%",
+              "product_main_image_url": "https://ae01.alicdn.com/kf/H2af1540e5ff645eca3df64862f040044J.jpg",
+              "first_level_category_id": 44,
+              "target_sale_price_currency": "KRW",
+              "target_app_sale_price_currency": "KRW",
+              "original_price_currency": "USD",
+              "shop_url": "https://ko.aliexpress.com/store/3561041",
+              "target_original_price_currency": "KRW",
+              "product_id": 1005003171612071,
+              "target_original_price": "1789",
+              "product_video_url": "",
+              "first_level_category_name": "소비자 가전",
+              "promotion_link": "https://s.click.aliexpress.com/s/NdpwztbAIgDMmxGbP8fFks7yUFfsHjzlImSYmA68h7xlMRgzueFsRgokQ9f9hcpVKttxtQE2VzIoqkXJXrpOr6uR3zv7mP4CDO9CddoFf4t0QE5DXPy8Pgjhz4irfQSEjEGUmy5yF3A5gJ9h3NYjLMgqIMqa3zcpq5E2BC3W5EbV40Dm9buQxWpZzw1lbX8Zm2kZtNIa4KyDieNjsH7IU6Yv8StELKVvT9r4eFAaXPGhwHsgaDqdNcmY116r3GC2YvsOopeiiZPhJrV0cwgOQDSkW93v7gVKDqPkXyZF1oSWa6wSAOeznMFVlVZbUCecIMRjMtX71U2InkTfZiux916IxJ9KXrWsAf1z4JXY7VGUs2jvgzZ0jJAo13ZFGoQjyHE6YFqsOx53AOWF8i81D087Ytjp7IbbXKyblwbqSictrzoSOlfPhbaNmkcOgjbRSZn7zDLMYdYhoYIEfVsn6p9tBMtMfA8ic5TS0pC8RDd22MC0T5NjyxDPHvDbCByLLxqsLfiQdL0PzXDr7tDcTfPN39lRj2N5ngb4ePteztIInAteOQ2SMqt4qoxKJHpavTLAC5BsjH11ieCfMS1cWehJ6UQxfovXaENzwmIUb0twMS4Wn6AEnRxh0totgVuiiZRrNcgiLyNTEDblP5gAbBjLcoUeGI7sodGpjaeSgSMc7366KBblXoyQJRVaWSlIPTItPDTvi905B4WmJXySpMWMrFkaRrF8YDE5bypZpfOkiY8YX7REZ52NcTlUOU1qeno478i1iAaKvrWaDV0SGzTDW3kyhfFnhXUxS4AIkMlXy0eINE5htqTDvQjya796JeYGGGx1ngmviUyms78ZV9qaQyNgQHRwpvON9O3UgAYZYiUQS6r76VNnZOg1FPgYieGXglNcLws1CnzkWWR0Dh6F4VR7rN5SFOCyOq4aHViHRBDQXZhefgm95KaSq0Pa1L7hDtKN8PWlbX10GaDGO4zccgLvOaXB1A99lM5jiv2yF"
+              "sale_price": "1.01",
+              "product_title": "삼성에 적합한 S4 범용 스마트폰에 적합 고속 충전 마이크로 USB2.0 충전 케이블, V8 데이터 케이블, 안드로이드, 신상품",
+              "hot_product_commission_rate": "0.0%",
+              "shop_id": 3561041,
+              "app_sale_price_currency": "USD",
+              "sale_price_currency": "USD",
+              "lastest_volume": 0,
+              "target_app_sale_price": "1434",
+              "commission_rate": "7.0%"
+            },
+-----------------------------------------------------------------------------------------------------------------
+            {
+              "app_sale_price": "0.15",
+              "original_price": "0.19",
+              "product_detail_url": "https://ko.aliexpress.com/item/1005006413322117.html?pdp_npi=4%40dis%21KRW%21270%21213%21%21%210.19%210.15%21%402140daab17207269850386646d13c9%2112000037075560786%21affd%21%21%21",
+              "product_small_image_urls": {
+                "string": [
+                  "https://ae01.alicdn.com/kf/Sc2a27013c4db47bab90e15bee58f4c84t.jpg",
+                  "https://ae01.alicdn.com/kf/S92a0d2ed54db4ec29bcb0177425081a4D.jpg",
+                  "https://ae01.alicdn.com/kf/S5f603e07ced049a49e39f7b6ec16ef11H.jpg",
+                  "https://ae01.alicdn.com/kf/Scf0c45c42b6f48e7a2d1342c1915c632a.jpg",
+                  "https://ae01.alicdn.com/kf/S7982d98f20c9409e875ce3e1e9f3e973w.jpg",
+                  "https://ae01.alicdn.com/kf/Sdba4aa10e1b642b0b68ed0faae727c924.jpg"
+                ]
+              },
+              "second_level_category_name": "부속품 & 부속",
+              "target_sale_price": "213",
+              "second_level_category_id": 629,
+              "discount": "21%",
+              "product_main_image_url": "https://ae01.alicdn.com/kf/Sc2a27013c4db47bab90e15bee58f4c84t.jpg",
+              "first_level_category_id": 44,
+              "target_sale_price_currency": "KRW",
+              "target_app_sale_price_currency": "KRW",
+              "original_price_currency": "USD",
+              "shop_url": "https://ko.aliexpress.com/store/3561041",
+              "target_original_price_currency": "KRW",
+              "product_id": 1005006413322117,
+              "target_original_price": "270",
+              "product_video_url": "",
+              "first_level_category_name": "소비자 가전",
+              "promotion_link": "https://s.click.aliexpress.com/s/fwx308cRD9Eny963e3KDdYxyIpNj8TXVr7saiF9Um5rMUg1kZtJALLnfa2LNXtiVgnxdD8Og6MmvwBoxhnSYQGM6r0c08U4TfX8DFGo7vviCuu3q62Q60OAhRZcqm3G8PtwM69xY7TOEWRrvulP5ukZQ4uQbBBtaVsdr6EffAqVmp3O5GyUANU2DoA3dJufNhDfh7KOlLgKIvRVhDxRESHLmea6fTE26gLUqKEUuuizJiLENrCbax94DZHDu8WhaXM9vQ86gzlqceNPO5w3vwXm4VrBF3x2lAMEl06wgNdTSMiT7cNG4HIdW0JxwNVZ7adSt3jfm3BBZ7jwbwBjIkSE9JxL46enXykicMMVnm0oMlMniHNGjtCgWQdYt85Fp9kkqMpdHJ4BIZSCHvG10FgC1lbV2wDXsTBfdz9z7ve9CRsFbcOM0rjAnpvJnHOpDN7Iv2Z5YCxMEwvv9Fuwf3o6JD93jDrBUYwY0jUcHbO9x0OLCQC5nDCQZalqbB8yGmgxPErWopc1kaDIMdyXG3wmUWOGjjEKPMSV5rf2uNMdqniRaHJi7mBMlK21tQh2cPNKnlCsCEzF4BlxVhcfhP3gY9n5tbmVGBPy5xv03S9fCgzhIfuQHPPlOdXMKdeNrs8W2GRn1vkvjY1dXoPso7ntkvVRHtr8nFJ2qlQEnN4SA802XJEc4ZylaThN7BU4T3GfJGLivaA74ILw3QVyyfekYHeuzOLDsMwlFi3BZUNfkJ32t0X2044gklmQlx9LM12LFmPQ4pgxdJFAZN3gRlISM2BJtQYmo7TWh29Q7TwbbOx29GXUtZW0kRcspyZnsicRloWCZndpHCBX9bOp1TVArcejgNlK99v6o9ebZXv52ZIf9xDLN0KKhyCni5oWhLsXH6Ek1ArFY6QNkkcit62POHejEFqjblSVq4xfgZDPuQekNoFwCGVDpynJ2en2Ex7N2T5M1HbwfflJeMx",
+              "sale_price": "0.15",
+              "product_title": "미니 USB 케이블, 미니 USB to USB 카드 리더기, 모바일 하드 드라이브, MP3 MP4 플레이어, 고속 데이터 USB 케이블, 디지털 카메라, 직송",
+              "hot_product_commission_rate": "0.0%",
+              "shop_id": 3561041,
+              "app_sale_price_currency": "USD",
+              "sale_price_currency": "USD",
+              "lastest_volume": 2,
+              "target_app_sale_price": "213",
+              "commission_rate": "7.0%"
+            }
+          ]
+        }
+      },
+      "resp_code": 200,
+      "resp_msg": "Call succeeds"
+    },
+    "request_id": "2140daab17207269850386620"
+  }
+}
