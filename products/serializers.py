@@ -8,6 +8,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def search(self, data):
       category_id = data.get('category_id')
-      keword = data.get('keyword')
+      keyword = data.get('keyword')
 
 
