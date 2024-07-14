@@ -1,6 +1,5 @@
 from django_backend.urls import path
-from . import views
-from products.ali import product_detail_API
+from . import ali
 urlpatterns = [
-    path('products/info/', product_detail_API.as_view(), name = 'info'),
+    path('', ali.ProductView.as_view(), name = 'info'),
 ]

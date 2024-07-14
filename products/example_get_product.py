@@ -1,5 +1,6 @@
 import iop
 import time
+import json
 from environ import Env
 
 env = Env()
@@ -20,7 +21,7 @@ request = iop.IopRequest('aliexpress.affiliate.product.query')
 request.add_api_param('app_signature', '') # API signature을 입력해야되는데 그런거 없음
 request.add_api_param('category_ids', '44') # 상품이 어떤 종류로 되어 있는지
 request.add_api_param('fields', 'commission_rate,sale_price') # Respond parameter list. eg: commission_rate,sale_price
-request.add_api_param('keywords', 'mp3') # 검색
+request.add_api_param('keywords', 'galaxy') # 검색
 request.add_api_param('max_sale_price', '100') # 상한선 설정
 request.add_api_param('min_sale_price', '15') # 하한선 설정
 request.add_api_param('page_no', '1') #첫번째 장
@@ -32,8 +33,19 @@ request.add_api_param('target_language', 'KO') # 한글
 request.add_api_param('tracking_id', 'default') # 그냥 trackingID
 request.add_api_param('ship_to_country', '') # 잘 모르겠음 한국을 넣으려고 했는데 다 안됨
 request.add_api_param('delivery_days', '') # 배송 예정일
+
 response = client.execute(request)
-# print(response.type)
-print(response.body)
+# products = response.body['aliexpress_affiliate_product_query_response']['resp_result']['result']['products']['product']
 end_time = time.time()
+# print(products[0].get('product_main_image_url'))
+print(response.body)
 print('response time: ' + str(end_time - start_time))
+
+# products = aliexpress_affiliate_product_query_response.resp_result.result.products.product
+# products[].aliexpress_affiliate_product_query_response.resp_result.result.products.product.app_sale_price.product_title
+#aliexpress_affiliate_product_query_response.resp_result.result.products.product[i].aliexpress_affiliate_product_query_response.resp_result.result.products.product.app_sale_price
+
+# product_title
+# target_app_sale_price
+# product_detail_url
+# product_main_image_url
