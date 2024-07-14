@@ -6,8 +6,25 @@ class ProductSerializer(serializers.ModelSerializer):
     model = Product
     fields = '__all__'
 
-    def search(self, data):
-      category_id = data.get('category_id')
-      keyword = data.get('keyword')
+class AliPostRequestSerializer(serializers.Serializer):
+  category_id = serializers.IntegerField()
+  keyword = serializers.CharField()
+  search_url = serializers.URLField()
+  search_name = serializers.CharField()
+  search_price = serializers.DecimalField(max_digits=10, decimal_places=2)
+  page_num = serializers.CharField()
+
+class AliPostResponseSerializer(serializers.Serializer):
+  id = serializers.IntegerField()
+  product_name = serializers.CharField()
+  category_id = serializers.IntegerField()
+  price = serializers.DecimalField(max_digits=10, decimal_places=2)
+  delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2)
+  link = serializers.URLField()
+  image_url = serializers.URLField()
+  created_at = serializers.DateTimeField()
+  updated_at = serializers.DateTimeField()
+  is_deleted = serializers.BooleanField()
+  search = serializers.IntegerField()
 
 

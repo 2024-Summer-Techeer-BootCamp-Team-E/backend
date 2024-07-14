@@ -7,10 +7,10 @@ class LikeProductSerializer(serializers.ModelSerializer):
         model = LikeProduct
         fields = '__all__'
 
-class GetRequestSerializer(serializers.Serializer):
+class LikeGetRequestSerializer(serializers.Serializer):
     pass
 
-class GetResponseSerializer(serializers.Serializer):
+class LikeGetResponseSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -23,7 +23,7 @@ class GetResponseSerializer(serializers.Serializer):
     is_deleted = serializers.BooleanField()
     user = serializers.IntegerField()
 
-class PostRequestSerializer(serializers.Serializer):
+class LikePostRequestSerializer(serializers.Serializer):
     name = serializers.CharField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
     delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -31,7 +31,7 @@ class PostRequestSerializer(serializers.Serializer):
     image_url = serializers.URLField()
     category_id = serializers.IntegerField()
 
-class PostResponseSerializer(serializers.Serializer):
+class LikePostResponseSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -44,5 +44,5 @@ class PostResponseSerializer(serializers.Serializer):
     is_deleted = serializers.BooleanField()
     user = serializers.IntegerField()
 
-class DeleteRequestSerializer(serializers.Serializer):
+class LikeDeleteRequestSerializer(serializers.Serializer):
     id = serializers.IntegerField()
