@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from .models import LikeProduct
 from .serializers import (LikeProductSerializer, GetRequestSerializer, GetResponseSerializer, PostRequestSerializer,
                           PostResponseSerializer, DeleteRequestSerializer)
-from products.models import Product
 from drf_yasg.utils import swagger_auto_schema
 # Create your views here.
 
@@ -16,19 +15,18 @@ class LikeProductView(APIView):
   def post(self, request):
     try:
       user_id = request.user
-      product_id = request.data.get('product')
+      name = request.data['name']
+      price = request.data['price']
+      delivery_charge = request.data['delivery_charge']
+      link = request.data['link']
+      image_url = request.data['image_url']
+      category_id = request.data['category_id']
 
       # Check if product_id is provided
-      if not product_id:
-        return Response({"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+      if not user_id:
+        return Response({"error": "로그인 해야 사용할 수 있습니다"}, status=status.HTTP_400_BAD_REQUEST)
 
-      # Get the Product instance
-      try:
-        product = Product.objects.get(id=product_id)
-      except Product.DoesNotExist:
-        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-
-      like_product = LikeProduct(user=user_id, product=product, product_number=1)
+      like_product = LikeProduct(user=user_id, name=name, price=price, delivery_charge=delivery_charge, link=link, image_url=image_url, category_id=category_id)
       like_product.save()
 
       serializer = LikeProductSerializer(like_product)
@@ -55,10 +53,9 @@ class LikeProductView(APIView):
   def delete(self, request):
     id = request.data.get('id')
     user_id = request.user
-    product_id = request.data.get('product')
 
     try:
-        del_Likeproducts = LikeProduct.objects.get(id=id, user_id=user_id, product_id=product_id)
+        del_Likeproducts = LikeProduct.objects.get(id=id, user_id=user_id)
         del_Likeproducts.delete()
         return Response({'message': 'Deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     except LikeProduct.DoesNotExist:
