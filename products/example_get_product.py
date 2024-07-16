@@ -1,4 +1,4 @@
-from python import iop
+import iop
 import time
 import environ
 
