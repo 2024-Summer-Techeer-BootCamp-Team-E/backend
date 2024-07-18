@@ -5,13 +5,13 @@ on:
     branches: [ "develop" ]
   pull_request:
     branches: [ "develop" ]
-# 브랜치에 푸시 또는 풀 리퀘스트 될 때 
+
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10] # 원하는 Python 버전 추가 가능
+        python-version: [3.8, 3.9, 3.10]
 
     steps:
     - uses: actions/checkout@v4
@@ -26,10 +26,8 @@ jobs:
     - name: Load Environment Variables
       run: |
         echo "Loading .env from db and django_backend"
-        set -a
-        source db/.env
-        source django_backend/.env
-        set +a
+        cat db/.env >> .env
+        cat django_backend/.env >> .env
     - name: Run Tests
       run: |
-        python manage.py test
+        python manage.py test --settings=django_backend.settings
