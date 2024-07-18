@@ -25,6 +25,7 @@ jobs:
 
     env:
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/test_db
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}  # Use GitHub secret here
 
     steps:
       - name: Checkout code
@@ -44,4 +45,3 @@ jobs:
         run: |
           python manage.py wait_for_db
           python manage.py test
-
