@@ -82,7 +82,7 @@ class ProductView(APIView):
 
       product = Product(
         search=search,
-        product_name=name,
+        name=name,
         price=price,
         delivery_charge=delivery_charge,
         link=link,

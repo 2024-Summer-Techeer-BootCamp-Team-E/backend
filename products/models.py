@@ -12,7 +12,6 @@ class Product(models.Model):
   category_id = models.IntegerField(default=1) #카테고리 아이디
   price = models.DecimalField(max_digits=10, decimal_places=2)  #가격
   delivery_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0) # 배송비
-  currency_id = models.IntegerField(default=1)   #화폐 단위
   link = models.URLField()
   image_url = models.URLField()
   created_at = models.DateTimeField(auto_now_add=True)
@@ -20,4 +19,4 @@ class Product(models.Model):
   is_deleted = models.BooleanField(default=False)
 
   def __str__(self):
-    return self.product_name
+    return self.name
