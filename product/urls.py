@@ -1,5 +1,8 @@
 from django_backend.urls import path
-from . import views
+from .views import ScrapeTitleView
+
+# from . import views #이거 원래
+
 urlpatterns = [
-    path('', views.index),
+    path('scrape/', ScrapeTitleView.as_view(), name='scrape'),
 ]
