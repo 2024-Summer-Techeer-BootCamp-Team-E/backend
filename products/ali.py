@@ -74,7 +74,7 @@ class ProductView(APIView):
       'product']
     saved_products = []
     for i in range(0, int(n)):  # 최대 5개의 상품만 저장
-      product_name = products[i].get('product_title')
+      name = products[i].get('product_title')
       price = products[i].get('target_app_sale_price')
       delivery_charge = 0
       link = products[i].get('product_detail_url')
@@ -82,7 +82,7 @@ class ProductView(APIView):
 
       product = Product(
         search=search,
-        product_name=product_name,
+        name=name,
         price=price,
         delivery_charge=delivery_charge,
         link=link,
