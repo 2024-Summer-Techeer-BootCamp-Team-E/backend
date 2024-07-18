@@ -37,7 +37,9 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
-COPY . /app/
+# COPY . /app/
 
 # Command to run the application
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# 소스 코드 복사
+COPY . ./django_backend
