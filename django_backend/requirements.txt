@@ -18,3 +18,4 @@ typing_extensions==4.9.0
 uritemplate==4.1.1
 django-cors-headers==4.3.1
 requests==2.32.2
+django-redis==5.2.0

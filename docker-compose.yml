@@ -10,6 +10,25 @@ services:
     ports:
       - "3306:3306"
 
+  redis_container:
+    image: redis:latest
+    container_name: redis
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
+    depends_on:
+      - backend
+    # 컨테이너에 docker label을 이용해서 메타데이터 추가
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    restart: always
+    command: redis-server /usr/local/conf/redis.conf
+
   backend:
     build:
       context: ./django_backend
@@ -27,3 +46,8 @@ services:
       python manage.py makemigrations &&
       python manage.py migrate &&
       python manage.py runserver 0.0.0.0:8000"
+
+
+volumes:
+  mysql-data:
+  redis-data:
