@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from products.models import Product
+from search.models import Search
 
 
 class ProductSerializer(serializers.Serializer):
@@ -18,7 +19,7 @@ class AliPostRequestSerializer(serializers.Serializer):
 
 class AliPostResponseSerializer(serializers.Serializer):
   id = serializers.IntegerField()
-  product_name = serializers.CharField()
+  name = serializers.CharField()
   category_id = serializers.IntegerField()
   price = serializers.IntegerField()
   delivery_charge = serializers.IntegerField()
@@ -30,3 +31,5 @@ class AliPostResponseSerializer(serializers.Serializer):
   search = serializers.IntegerField()
 
 
+  def create(self, validated_data):
+      return Product.objects.create(**validated_data)

@@ -1,5 +1,8 @@
 from django_backend.urls import path
-from . import views
+from . import ali
+from products.views import ScrapeTitleView
+
 urlpatterns = [
-    path('', views.ProductView.as_view(), name = 'info'),
+    path('info/', ali.ProductView.as_view(), name = 'info'),
+    path('scrape/', ScrapeTitleView.as_view(), name='scrape'),
 ]

@@ -6,7 +6,6 @@ services:
     container_name: mysqldb
     env_file:
       - "./db/.env"
-    #mysql 환경 변수와 관련된 file은 현재 위치/db 하위에 .env파일로 따로 둠 #
     ports:
       - "3306:3306"
 
@@ -38,16 +37,46 @@ services:
       - "8000:8000"
     volumes:
       - ./:/app
+      - ./django_backend/static:/app/static
     restart: always
     depends_on:
       - mysqldb
-    command:
-      bash -c "python wait_mysql.py && 
+    command: bash -c "
+      python wait_mysql.py &&
       python manage.py makemigrations &&
       python manage.py migrate &&
       python manage.py runserver 0.0.0.0:8000"
+      python manage.py collectstatic --noinput &&
+      gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
+      "
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./django_backend/static:/app/static
+    depends_on:
+      - backend
 
+  frontend: #프론트 엔드 서비스를 만듬
+    build:
+      context: ../frontend #프론트 엔드 소스코드는 이 경로에 있다.
+      dockerfile: ../frontend/Dockerfile #빌드할때 프론트엔드 도커파일을 사용함.
+      args:
+        API_URL: "*"
+    container_name: frontend
+    command: yarn dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/frontend
+      - /frontend/node_modules
+    image: run
+    tty: true
+    
 volumes:
   mysql-data:
   redis-data:
