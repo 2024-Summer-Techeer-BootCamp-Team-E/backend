@@ -5,3 +5,5 @@ products/.env
 *.pyc
 venv/
 __pycache__
+redis/conf/redis.conf
+redis/data/dump.rdb
