@@ -9,8 +9,8 @@ class KeywordsSerializer(serializers.ModelSerializer):
         fields = ('product_name')
 
 
-class TranslateRequestSerializer(serializers.Serializer):
+class KeywordRequestSerializer(serializers.Serializer):
     product_name = serializers.CharField()
 
-class TranslateResponseSerializer(serializers.Serializer):
+class KeywordResponseSerializer(serializers.Serializer):
     product_name = serializers.CharField()
