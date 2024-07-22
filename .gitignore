@@ -6,3 +6,4 @@ products/.env
 venv/
 __pycache__/
 migrations/
+search/.env

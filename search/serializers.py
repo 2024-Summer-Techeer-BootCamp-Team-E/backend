@@ -1,16 +1,14 @@
 from rest_framework import serializers
 from .models import Search
-from ..products.models import Product
-from products.serializers import ProductSerializer
 
 class KeywordsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Product
-        fields = ('product_name')
-
+        model = Search
+        fields = ['search_url', 'name', 'keyword', 'category_id']
 
 class KeywordRequestSerializer(serializers.Serializer):
-    product_name = serializers.CharField()
+    search_url = serializers.CharField(required=True)
 
 class KeywordResponseSerializer(serializers.Serializer):
-    product_name = serializers.CharField()
+    keyword = serializers.CharField()
+    category_id = serializers.IntegerField()
