@@ -13,8 +13,10 @@ jobs:
       mysqldb:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_db
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_ROOT_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
         ports:
           - 3306:3306
         options: >-
@@ -24,8 +26,11 @@ jobs:
           --health-retries=3
 
     env:
-      DATABASE_URL: mysql://root:root@127.0.0.1:3306/test_db
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}  # Use GitHub secret here
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      DATABASE_PASS: ${{ secrets.DATABASE_PASS }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}  # GitHub secret 사용
 
     steps:
       - name: Checkout code
