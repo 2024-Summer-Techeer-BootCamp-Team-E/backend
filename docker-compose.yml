@@ -8,6 +8,8 @@ services:
       - "./db/.env"
     ports:
       - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
 
   redis_container:
     image: redis:latest
@@ -21,7 +23,6 @@ services:
       - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
     depends_on:
       - backend
-    # 컨테이너에 docker label을 이용해서 메타데이터 추가
     labels:
       - "name=redis"
       - "mode=standalone"
@@ -38,6 +39,7 @@ services:
     volumes:
       - ./:/app
       - ./django_backend/static:/app/static
+      - ./django_backend/media:/app/media
     restart: always
     depends_on:
       - mysqldb
@@ -45,7 +47,6 @@ services:
       python wait_mysql.py &&
       python manage.py makemigrations &&
       python manage.py migrate &&
-      python manage.py runserver 0.0.0.0:8000"
       python manage.py collectstatic --noinput &&
       gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
       "
@@ -58,13 +59,15 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./django_backend/static:/app/static
+      - ./django_backend/media:/app/media
     depends_on:
+      - frontend
       - backend
 
-  frontend: #프론트 엔드 서비스를 만듬
+  frontend:
     build:
-      context: ../frontend #프론트 엔드 소스코드는 이 경로에 있다.
-      dockerfile: ../frontend/Dockerfile #빌드할때 프론트엔드 도커파일을 사용함.
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile
       args:
         API_URL: "*"
     container_name: frontend
@@ -76,7 +79,7 @@ services:
       - /frontend/node_modules
     image: run
     tty: true
-    
+
 volumes:
   mysql-data:
   redis-data:
