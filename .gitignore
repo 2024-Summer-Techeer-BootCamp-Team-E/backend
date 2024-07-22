@@ -4,6 +4,10 @@ db/.env
 products/.env
 *.pyc
 venv/
+__pycache__
+redis/conf/redis.conf
+redis/data/dump.rdb
+
 __pycache__/
 migrations/
 search/.env

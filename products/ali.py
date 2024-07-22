@@ -1,16 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Product
-from .serializers import (
-  ProductSerializer,
-  AliPostRequestSerializer,
-  AliPostResponseSerializer
-)
 from rest_framework import status
-from .iop import base
-from environ import Env
+from .models import Product, ProductManager
 from search.models import Search
+from .serializers import ProductSerializer, AliPostRequestSerializer, AliPostResponseSerializer
 from drf_yasg.utils import swagger_auto_schema
+from environ import Env
+from .iop import base
 
 env = Env()
 env.read_env()
@@ -20,78 +16,71 @@ APP_KEY = env('ALI_APPKEY')
 APP_SECRET = env('ALI_APPSECRET')
 
 class ProductView(APIView):
-  @swagger_auto_schema(request_body=AliPostRequestSerializer, responses={"201": AliPostResponseSerializer})
-  def post(self, request):
-    search_url = request.data['search_url']
-    category_id = request.data['category_id']
-    keyword = request.data['keyword']
-    n = request.data['page_num']
+    @swagger_auto_schema(request_body=AliPostRequestSerializer, responses={"201": AliPostResponseSerializer})
+    def post(self, request):
+        search_url = request.data['search_url']
 
-    try:
-      searched_product = Search.objects.get(search_url=search_url)
-      try:
-        products = Product.objects.filter(search=searched_product)
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
-      except Product.DoesNotExist:
-        #검색 기록은 있지만 조회되는 상품이 없을때
-        product_data = self.getAli(category_id, keyword, searched_product, n)
-        return Response(product_data, status=status.HTTP_201_CREATED)
-    except Search.DoesNotExist:
-      # 검색 기록이 없는 경우 검색 기록 생성 후 제품 조회
-      search = Search(
-        search_url=search_url,
-        name=request.data['search_name'],
-        price=request.data['search_price'],
-        delivery_charge=0
-      )
-      search.save()
+        # Redis에 검색 기록이 있는 경우
+        if ProductManager.exists_in_redis(search_url):
+            product_from_redis = ProductManager.get_from_redis(search_url)
+            # Redis에 상품 기록이 있는 경우
+            if product_from_redis:
+                serializer = ProductSerializer(product_from_redis, many=True)
+                # return Response(1)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return self.handle_redis_miss(search_url)
+        else:
+            return self.handle_redis_miss(search_url)
 
-      product_data = self.getAli(category_id, keyword, search, n)
-      return Response(product_data, status=status.HTTP_201_CREATED)
+    def handle_redis_miss(self, search_url):
+        try:
+            searched = Search.objects.get(search_url=search_url)
+            category_id = searched.category_id
+            keyword = searched.keyword
+            products = self.get_ali_products(search_url, category_id, keyword)
+            #test case
+            test = Search(search_url="test1", name="test", keyword="test", category_id=1, price=1, delivery_charge=1)
+            test.save()
 
-  def getAli(self, category_id, keyword, search, n):
-    client = base.IopClient(URL, APP_KEY, APP_SECRET)
-    request = base.IopRequest('aliexpress.affiliate.product.query')
-    request.add_api_param('app_signature', '')  # API signature을 입력해야 되는데 그런 거 없음
-    request.add_api_param('category_ids', category_id)  # 상품이 어떤 종류로 되어 있는지
-    request.add_api_param('fields', 'commission_rate,sale_price')  #
-    request.add_api_param('keywords', keyword)  # 검색
-    request.add_api_param('max_sale_price', '100')  # 상한선 설정
-    request.add_api_param('min_sale_price', '15')  # 하한선 설정
-    request.add_api_param('page_no', '1')  # 첫번째 장
-    request.add_api_param('page_size', n)  # 검색해본 페이지의 수
-    request.add_api_param('platform_product_type', 'ALL')  #
-    request.add_api_param('sort', '')  # 정렬 순서 설정
-    request.add_api_param('target_currency', 'KRW')  # 한화
-    request.add_api_param('target_language', 'KO')  # 한글
-    request.add_api_param('tracking_id', 'default')  # 그냥 trackingID
-    request.add_api_param('ship_to_country', '')  # 잘 모르겠음 한국을 넣으려고 했는데 다 안됨
-    request.add_api_param('delivery_days', '')  # 배송 예정일
-    response = client.execute(request)
+            return Response(products, status=status.HTTP_200_OK)
+        except Search.DoesNotExist:
+            print(f"Search object with search_url '{search_url}' does not exist.")
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    products = response.body['aliexpress_affiliate_product_query_response']['resp_result']['result']['products'][
-      'product']
-    saved_products = []
-    for i in range(0, int(n)):  # 최대 5개의 상품만 저장
-      name = products[i].get('product_title')
-      price = products[i].get('target_app_sale_price')
-      delivery_charge = 0
-      link = products[i].get('product_detail_url')
-      image_url = products[i].get('product_main_image_url')
+    def get_ali_products(self, search_url, category_id, keyword):
+        client = base.IopClient(URL, APP_KEY, APP_SECRET)
+        request = base.IopRequest('aliexpress.affiliate.product.query')
+        request.add_api_param('app_signature', '')
+        request.add_api_param('category_ids', category_id)
+        request.add_api_param('fields', 'commission_rate,sale_price')
+        request.add_api_param('keywords', keyword)
+        request.add_api_param('max_sale_price', '100')
+        request.add_api_param('min_sale_price', '15')
+        request.add_api_param('page_no', '1')
+        request.add_api_param('page_size', '20')
+        request.add_api_param('platform_product_type', 'ALL')
+        request.add_api_param('sort', '')
+        request.add_api_param('target_currency', 'KRW')
+        request.add_api_param('target_language', 'KO')
+        request.add_api_param('tracking_id', 'default')
+        request.add_api_param('ship_to_country', '')
+        request.add_api_param('delivery_days', '')
+        response = client.execute(request)
 
-      product = Product(
-        search=search,
-        name=name,
-        price=price,
-        delivery_charge=delivery_charge,
-        link=link,
-        image_url=image_url,
-        category_id=category_id
-      )
-      product.save()
-      saved_products.append(product)
+        products = response.body.get('aliexpress_affiliate_product_query_response', {}).get('resp_result', {}).get('result', {}).get('products', {}).get('product', [])
+        saved_products = []
+        for product_data in products[:20]:
+            product = Product(
+                product_name=product_data.get('product_title'),
+                price=product_data.get('target_app_sale_price'),
+                delivery_charge=0,
+                link=product_data.get('product_detail_url'),
+                image_url=product_data.get('product_main_image_url'),
+                category_id=category_id
+            )
+            saved_products.append(product)
 
-    serializer = ProductSerializer(saved_products, many=True)
-    return serializer.data
-
+        ProductManager.save_to_redis(search_url, saved_products)
+        serializer = ProductSerializer(saved_products, many=True)
+        return serializer.data

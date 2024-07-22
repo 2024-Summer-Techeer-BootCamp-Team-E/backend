@@ -13,8 +13,8 @@ class LikeGetRequestSerializer(serializers.Serializer):
 class LikeGetResponseSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
-    price = serializers.DecimalField(max_digits=10, decimal_places=2)
-    delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2)
+    price = serializers.IntegerField()
+    delivery_charge = serializers.IntegerField(default=0)
     link = serializers.URLField()
     image_url = serializers.URLField()
     category_id = serializers.IntegerField()
@@ -25,8 +25,8 @@ class LikeGetResponseSerializer(serializers.Serializer):
 
 class LikePostRequestSerializer(serializers.Serializer):
     name = serializers.CharField()
-    price = serializers.DecimalField(max_digits=10, decimal_places=2)
-    delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2)
+    price = serializers.IntegerField()
+    delivery_charge = serializers.IntegerField(default=0)
     link = serializers.URLField()
     image_url = serializers.URLField()
     category_id = serializers.IntegerField()
@@ -34,8 +34,8 @@ class LikePostRequestSerializer(serializers.Serializer):
 class LikePostResponseSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
-    price = serializers.DecimalField(max_digits=10, decimal_places=2)
-    delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2)
+    price = serializers.IntegerField()
+    delivery_charge = serializers.IntegerField(default=0)
     link = serializers.URLField()
     image_url = serializers.URLField()
     category_id = serializers.IntegerField()

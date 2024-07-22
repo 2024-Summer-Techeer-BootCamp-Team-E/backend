@@ -5,10 +5,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from .models import Product  # Product 모델 임포트
-from .models import Search
+# from .models import Search
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .serializers import ProductSerializer
+from search.serializers import SearchSerializer
 import logging
 
 # 크롤링
@@ -110,7 +110,7 @@ class ScrapeTitleView(APIView):
                 "search_url": link
             }
 
-            serializer = ProductSerializer(data=product_data)
+            serializer = SearchSerializer(data=product_data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
