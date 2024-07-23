@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from .models import Search
-
+class SearchSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Search
+    fields = '__all__'
+    
 class KeywordsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Search
