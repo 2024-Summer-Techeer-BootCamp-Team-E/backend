@@ -25,3 +25,7 @@ beautifulsoup4==4.9.3
 lxml==4.6.3
 webdriver-manager==4.0.0
 psycopg2-binary
+<<<<<<< HEAD
+boto3==1.34.138
+=======
+>>>>>>> develop
