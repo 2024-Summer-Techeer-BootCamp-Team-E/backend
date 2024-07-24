@@ -66,20 +66,20 @@ class KeywordView(APIView):
 
             # KEYWORDS 필드에 접근 
             keyword_list = data_dict["KEYWORDS"]
-            if data_dict["CATEGORIES"].get("FASHION") is not None:
+            if data_dict["CATEGORIES"].get("FASHION"):
                 category_id = 1
-            elif data_dict["CATEGORIES"].get("HOME") is not None:
+            elif data_dict["CATEGORIES"].get("HOME"):
                 category_id = 2
-            elif data_dict["CATEGORIES"].get("ELECTRONICS") is not None:
+            elif data_dict["CATEGORIES"].get("ELECTRONICS"):
                 category_id = 3
-            elif data_dict["CATEGORIES"].get("BEAUTY") is not None:
+            elif data_dict["CATEGORIES"].get("BEAUTY"):
                 category_id = 4
-            elif data_dict["CATEGORIES"].get("SPORTS") is not None:
+            elif data_dict["CATEGORIES"].get("SPORTS"):
                 category_id = 5
-            elif data_dict["CATEGORIES"].get("AUTOMOBILE") is not None:
+            elif data_dict["CATEGORIES"].get("AUTOMOBILE"):
                 category_id = 6
-            elif data_dict["CATEGORIES"].get("EXTRA") is not None:
-                category_id = 7        
+            elif data_dict["CATEGORIES"].get("EXTRA"):
+                category_id = 7
 
         else:
             for entity in keyword.get('Entities', []):
