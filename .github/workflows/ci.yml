@@ -1,54 +1,32 @@
-name: Django CI
+name: CI
 
 on:
   push:
-    branches:
-      - main
-      - develop
-      
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      mysqldb:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          MYSQL_USER: ${{ secrets.MYSQL_ROOT_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.9
-
-      - name: Install dependencies
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r django_backend/requirements.txt
-
-      - name: Run tests
-        run: |
-          python manage.py wait_for_db
-          python manage.py test
-
+      - name: Set up environment variables 
+        run: echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+      - name: Run Tests - Secrets
         env:
-          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-          DATABASE_USER: ${{ secrets.DATABASE_USER }}
-          DATABASE_PASS: ${{ secrets.DATABASE_PASS }}
-          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}  # GitHub secret 사용
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          python manage.py test --settings=django_backend.settings

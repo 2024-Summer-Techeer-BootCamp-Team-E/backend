@@ -4,8 +4,7 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .models import Product  # Product 모델 임포트
-# from .models import Search
+from search.models import Search
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from search.serializers import SearchSerializer
@@ -17,7 +16,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 import time
 
@@ -50,20 +48,24 @@ class ScrapeTitleView(APIView):
 
     def post(self, request):
         url = request.data.get('url', None)
-        if not url:
-            return JsonResponse({'error': 'URL을 입력하시오.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Setup Chrome options
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # Run in headless mode
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        # chrome_options.page_load_strategy = 'eager'  # Eager page load strategy
-
-        # Use Chromium instead of Chrome
         chrome_options.binary_location = "/usr/bin/chromium"
-
+        
         driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+
+        if not url:
+            return JsonResponse({'error': 'URL을 입력하시오.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        existing_entry = Search.objects.filter(search_url=url).first()
+        if existing_entry:
+            serializer = SearchSerializer(existing_entry)
+            driver.quit()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         driver.get(url)
         time.sleep(3)
