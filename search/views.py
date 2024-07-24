@@ -53,14 +53,14 @@ class KeywordView(APIView):
         types = ['ORGANIZATION', 'COMMERCIAL_ITEM', 'QUANTITY', 'OTHER', 'FASHION', 'HOME', 
                 'SPORTS', 'ELECTRONICS', 'BEAUTY', 'AUTOMOBILE', 'EXTRA', 'FEATURE']
         keyword_list = []
-        category_list = [['0'],
-                        ['3, 200000345, 200000343, 200000297, 201768104, 200574005, 200165144'],
-                        ['6, 13, 15, 1503, 39'],
-                        ['7, 44, 502, 509'],
-                        ['66'],
-                        ['18'],
-                        ['34'],
-                        ['30, 21, 26, 36, 1420, 320']]
+        category_list = [[0],
+                        [3, 200000345, 200000343, 200000297, 201768104, 200574005, 200165144],
+                        [6, 13, 15, 1503, 39],
+                        [7, 44, 502, 509],
+                        [66],
+                        [18],
+                        [34],
+                        [30, 21, 26, 36, 1420, 320]]
         
         keyword = comprehend.entities1(translate_text)
 
