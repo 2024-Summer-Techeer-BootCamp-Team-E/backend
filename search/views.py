@@ -53,14 +53,6 @@ class KeywordView(APIView):
         types = ['ORGANIZATION', 'COMMERCIAL_ITEM', 'QUANTITY', 'OTHER', 'FASHION', 'HOME', 
                 'SPORTS', 'ELECTRONICS', 'BEAUTY', 'AUTOMOBILE', 'EXTRA', 'FEATURE']
         keyword_list = []
-        category_list = [[0],
-                        [3, 200000345, 200000343, 200000297, 201768104, 200574005, 200165144],
-                        [6, 13, 15, 1503, 39],
-                        [7, 44, 502, 509],
-                        [66],
-                        [18],
-                        [34],
-                        [30, 21, 26, 36, 1420, 320]]
         
         keyword = comprehend.entities1(translate_text)
 
@@ -99,7 +91,14 @@ class KeywordView(APIView):
         if isinstance(keyword_list, list):
             keyword_str = ', '.join(keyword_list)
 
-        product.category_id = category_list[category_id]
+        '''
+        if isinstance(category_list[category], list):
+            category_id = ', '.join(category_list)
+        '''
+
+        #category_id = [", ".join(map(str, category_list[category]))]
+
+        product.category_id = category_id
         product.keyword = keyword_str
         product.save()
 
