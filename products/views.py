@@ -48,23 +48,24 @@ class ScrapeTitleView(APIView):
 
     def post(self, request):
         url = request.data.get('url', None)
-        if not url:
-            return JsonResponse({'error': 'URL을 입력하시오.'}, status=status.HTTP_400_BAD_REQUEST)
-        if Search.objects.filter(search_url=url).exists():
-            driver.quit()
-            return JsonResponse({'message': '이미 존재하는 URL입니다.'}, status=status.HTTP_200_OK)
 
         # Setup Chrome options
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # Run in headless mode
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        # chrome_options.page_load_strategy = 'eager'  # Eager page load strategy
-
-        # Use Chromium instead of Chrome
         chrome_options.binary_location = "/usr/bin/chromium"
-
+        
         driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+
+        if not url:
+            return JsonResponse({'error': 'URL을 입력하시오.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        existing_entry = Search.objects.filter(search_url=url).first()
+        if existing_entry:
+            serializer = SearchSerializer(existing_entry)
+            driver.quit()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         driver.get(url)
         time.sleep(3)
