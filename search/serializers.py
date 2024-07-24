@@ -4,7 +4,7 @@ class SearchSerializer(serializers.ModelSerializer):
   class Meta:
     model = Search
     fields = '__all__'
-    
+
 class KeywordsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Search
@@ -14,5 +14,7 @@ class KeywordRequestSerializer(serializers.Serializer):
     search_url = serializers.CharField(required=True)
 
 class KeywordResponseSerializer(serializers.Serializer):
+    search_url = serializers.URLField(max_length=500)
+    name = serializers.CharField(max_length=500)
     keyword = serializers.CharField()
     category_id = serializers.IntegerField()

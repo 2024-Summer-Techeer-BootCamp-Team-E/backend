@@ -34,9 +34,20 @@ class ProductView(APIView):
             return self.handle_redis_miss(search_url)
 
     def handle_redis_miss(self, search_url):
+
+        category_list = ['0',
+                        '3, 200000345, 200000343, 200000297, 201768104, 200574005, 200165144',
+                        '6, 13, 15, 1503, 39',
+                        '7, 44, 502, 509',
+                        '66',
+                        '18',
+                        '34',
+                        '30, 21, 26, 36, 1420, 320']
+        
         try:
             searched = Search.objects.get(search_url=search_url)
-            category_id = searched.category_id
+            category = searched.category_id
+            category_id = category_list[category]
             keyword = searched.keyword
             products = self.get_ali_products(search_url, category_id, keyword)
             #test case
