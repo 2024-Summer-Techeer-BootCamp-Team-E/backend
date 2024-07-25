@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import LikeProduct
 from products.models import Product, ProductManager
+from search.models import Search
 from .serializers import (
   LikeProductSerializer,
   LikeGetRequestSerializer,
@@ -13,7 +14,6 @@ from .serializers import (
   LikeDeleteRequestSerializer
 )
 from drf_yasg.utils import swagger_auto_schema
-# Create your views here.
 
 class LikeProductView(APIView):
   permission_classes = [IsAuthenticated]
@@ -28,12 +28,26 @@ class LikeProductView(APIView):
       link = request.data['link']
       image_url = request.data['image_url']
       category_id = request.data['category_id']
+      search_url = request.data['search_url']
 
       # Check if product_id is provided
       if not user_id:
         return Response({"error": "로그인 해야 사용할 수 있습니다"}, status=status.HTTP_400_BAD_REQUEST)
+      
+      search_item = Search.objects.filter(search_url=search_url).first()
+      origin_price = search_item.price
 
-      like_product = LikeProduct(user=user_id, name=name, price=price, delivery_charge=delivery_charge, link=link, image_url=image_url, category_id=category_id)
+      like_product = LikeProduct(
+        user=user_id, 
+        name=name, 
+        price=price, 
+        delivery_charge=delivery_charge, 
+        link=link, 
+        image_url=image_url, 
+        category_id=category_id, 
+        origin_price=origin_price
+        )
+      
       like_product.save()
 
       serializer = LikeProductSerializer(like_product)
