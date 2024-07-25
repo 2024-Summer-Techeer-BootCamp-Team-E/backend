@@ -57,3 +57,4 @@ jobs:
           docker-compose -f docker-compose.yml up -d
           sudo systemctl restart gunicorn
           sudo systemctl restart nginx
+
