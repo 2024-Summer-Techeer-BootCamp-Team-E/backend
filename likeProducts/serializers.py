@@ -30,6 +30,7 @@ class LikePostRequestSerializer(serializers.Serializer):
     link = serializers.URLField()
     image_url = serializers.URLField()
     category_id = serializers.IntegerField()
+    search_url = serializers.URLField()
 
 class LikePostResponseSerializer(serializers.Serializer):
     id = serializers.IntegerField()

@@ -12,6 +12,7 @@ class LikeProduct(models.Model):
   link = models.URLField()
   image_url = models.URLField()
   category_id = models.IntegerField()
+  origin_price = models.IntegerField(null=True, blank=True)
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
   is_deleted = models.BooleanField(default=False)
