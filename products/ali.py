@@ -6,6 +6,7 @@ from search.models import Search
 from .serializers import ProductSerializer, AliPostRequestSerializer, AliPostResponseSerializer
 from drf_yasg.utils import swagger_auto_schema
 from environ import Env
+from .tasks import get_ali_products
 from .iop import base
 
 env = Env()
@@ -26,7 +27,6 @@ class ProductView(APIView):
             # Redis에 상품 기록이 있는 경우
             if product_from_redis:
                 serializer = ProductSerializer(product_from_redis, many=True)
-                # return Response(1)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return self.handle_redis_miss(search_url)
@@ -49,16 +49,15 @@ class ProductView(APIView):
             category = searched.category_id
             category_id = category_list[category]
             keyword = searched.keyword
-            products = self.get_ali_products(search_url, category_id, keyword)
-            #test case
-            test = Search(search_url="test1", name="test", keyword="test", category_id=1, price=1, delivery_charge=1)
-            test.save()
-
-            return Response(products, status=status.HTTP_200_OK)
+            # products = get_ali_products(search_url, category_id, keyword)
+            task = get_ali_products.delay(search_url, category_id, keyword)
+            task_id = task.id
+            return Response(task_id, status=status.HTTP_200_OK)
         except Search.DoesNotExist:
             print(f"Search object with search_url '{search_url}' does not exist.")
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+'''
     def get_ali_products(self, search_url, category_id, keyword):
         client = base.IopClient(URL, APP_KEY, APP_SECRET)
         request = base.IopRequest('aliexpress.affiliate.product.query')
@@ -95,3 +94,4 @@ class ProductView(APIView):
         ProductManager.save_to_redis(search_url, saved_products)
         serializer = ProductSerializer(saved_products, many=True)
         return serializer.data
+'''
