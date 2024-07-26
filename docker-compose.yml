@@ -95,24 +95,24 @@ services:
       - ./django_backend/static:/app/static
       - ./django_backend/media:/app/media
     depends_on:
-      - frontend
+#      - frontend
       - backend
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: ../frontend/Dockerfile
-      args:
-        API_URL: "*"
-    container_name: frontend
-    command: yarn dev
-    ports:
-      - "3000:3000"
-    volumes:
-      - ../frontend:/frontend
-      - /frontend/node_modules
-    image: run
-    tty: true
+#  frontend:
+#    build:
+#      context: ../frontend
+#      dockerfile: ../frontend/Dockerfile
+#      args:
+#        API_URL: "*"
+#    container_name: frontend
+#    command: yarn dev
+#    ports:
+#      - "3000:3000"
+#    volumes:
+#      - ../frontend:/frontend
+#      - /frontend/node_modules
+#    image: run
+#    tty: true
 
 volumes:
   mysql-data:

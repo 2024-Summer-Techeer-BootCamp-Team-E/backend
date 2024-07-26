@@ -66,6 +66,7 @@ class KeywordView(APIView):
 
             # KEYWORDS 필드에 접근 
             keyword_list = data_dict["KEYWORDS"]
+            '''
             if data_dict["CATEGORIES"].get("FASHION"):
                 category_id = 1
             elif data_dict["CATEGORIES"].get("HOME"):
@@ -80,6 +81,10 @@ class KeywordView(APIView):
                 category_id = 6
             elif data_dict["CATEGORIES"].get("EXTRA"):
                 category_id = 7
+            '''
+            category_list = data_dict["PERCENTAGE"]
+            max_key = max(category_list, key=lambda k: category_list[k])
+            category_id = types.index(max_key)
 
         else:
             for entity in keyword.get('Entities', []):
