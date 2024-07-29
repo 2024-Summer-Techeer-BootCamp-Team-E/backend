@@ -55,12 +55,14 @@ class ScrapeTitleView(APIView):
 
         # Setup Chrome options
         chrome_options = Options()
+        chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.5615.49 Safari/537.36")
         chrome_options.add_argument("--headless")  # Run in headless mode
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.binary_location = "/usr/bin/chromium"
         
         driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+        # driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(), options=options)
 
         if not url:
             return JsonResponse({'error': 'URL을 입력하시오.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -141,6 +143,75 @@ class ScrapeTitleView(APIView):
                 print("Finding product image element...")
                 image_element = wait.until(
                     EC.visibility_of_element_located((By.CSS_SELECTOR, "img[onerror=\"this.src='https://cdn.011st.com/11dims/resize/600x600/quality/75/11src/img/product/no_image.gif'\"]"))
+                )
+                product_image_url = image_element.get_attribute("src")
+                print(f"Product Image: {product_image_url}")
+
+            elif "coupang" in url:
+                #쿠팡
+                # 상품명
+                print("Finding product name element...")
+                name_element = wait.until(
+                    EC.visibility_of_element_located((By.CSS_SELECTOR, "h1.prod-buy-header__title"))
+                )
+                product_name = name_element.text.strip()
+                print(f"Product Name: {product_name}")
+
+                # 가격
+                print("Finding product price element...")
+                price_element = wait.until(
+                    EC.visibility_of_element_located((By.CSS_SELECTOR, "span.total-price"))
+                )
+                product_price = clean_price(price_element.text.strip())
+                print(f"Product Price: {product_price}")
+
+                # 배송비
+                print("Finding product elivery element...")
+                delivery_element = wait.until(
+                    EC.visibility_of_element_located((By.CSS_SELECTOR, "span.shipping-fee-txt"))
+                )
+                product_delivery = clean_price(delivery_element.text.strip())
+                print(f"Product Price: {product_delivery}")
+
+
+                # 상품 이미지
+                print("Finding product img element...")
+                image_element = wait.until(
+                    EC.visibility_of_element_located((By.CSS_SELECTOR, "img.prod-image__detail"))
+                )
+                product_image_url = image_element.get_attribute("src")
+                print(f"Product Image: {product_image_url}")
+
+            elif "kurly" in url:
+                # 마켓컬리
+                # 상품명
+                print("Finding product name element...")
+                name_element = wait.until(
+                    EC.visibility_of_element_located((By.CSS_SELECTOR, "h1.css-79gmk3 ezpe9l11"))
+                )
+                product_name = name_element.text.strip()
+                print(f"Product Name: {product_name}")
+
+                # 가격
+                print("Finding product price element...")
+                price_element = wait.until(
+                    EC.visibility_of_element_located((By.CSS_SELECTOR, "span.css-9pf1ze e1q8tigr2"))
+                )
+                product_price = clean_price(price_element.text.strip())
+                print(f"Product Price: {product_price}")
+
+                # 배송비
+                print("Finding product elivery element...")
+                if product_price >= 40000:
+                    product_delivery = 0
+                else:
+                    product_delivery = 3000
+                print(f"Product Price: {product_delivery}")
+
+                # 상품 이미지
+                print("Finding product img element...")
+                image_element = wait.until(
+                    EC.visibility_of_element_located((By.CSS_SELECTOR, "img.css-1zjvv7"))
                 )
                 product_image_url = image_element.get_attribute("src")
                 print(f"Product Image: {product_image_url}")
