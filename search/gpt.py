@@ -9,7 +9,8 @@ env.read_env()
 
 OPEN_AI_PROJECT_KEY=env('OPEN_AI_PROJECT_KEY')
 
-class KeywordExtractor:
+# 이거 지금 안쓰고 있음
+class KeywordExtractor: 
     def __init__(self):
         
         self.llm = ChatOpenAI(model_name="gpt-4", openai_api_key=OPEN_AI_PROJECT_KEY)

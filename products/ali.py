@@ -7,8 +7,6 @@ from .serializers import ProductSerializer, AliPostRequestSerializer, AliPostRes
 from drf_yasg.utils import swagger_auto_schema
 from environ import Env
 from .iop import base
-from search.gpt import CoreWordExtractor
-from search.serializers import KeywordsSerializer
 
 env = Env()
 env.read_env()
@@ -36,7 +34,6 @@ class ProductView(APIView):
             return self.handle_redis_miss(search_url)
 
     def handle_redis_miss(self, search_url):
-
         '''
         category_list = ['0',
                         '3, 200000345, 200000343, 200000297, 201768104, 200574005, 200165144',
@@ -52,12 +49,11 @@ class ProductView(APIView):
             searched = Search.objects.get(search_url=search_url)
             category_id = searched.category_id
             #category_id = category_list[category]
-            #category_id = 
             keyword = searched.keyword
             products = self.get_ali_products(search_url, category_id, keyword)
             #test case
-            #test = Search(search_url="test1", name="test", keyword="test", category_id=1, price=1, delivery_charge=1)
-            #test.save()
+            test = Search(search_url="test1", name="test", keyword="test", category_id=1, price=1, delivery_charge=1)
+            test.save()
 
             return Response(products, status=status.HTTP_200_OK)
         except Search.DoesNotExist:
@@ -68,7 +64,7 @@ class ProductView(APIView):
         client = base.IopClient(URL, APP_KEY, APP_SECRET)
         request = base.IopRequest('aliexpress.affiliate.product.query')
         request.add_api_param('app_signature', '')
-        request.add_api_param('category_ids', ' ')
+        request.add_api_param('category_ids', '')
         request.add_api_param('fields', 'commission_rate,sale_price')
         request.add_api_param('keywords', keyword)
         request.add_api_param('max_sale_price', '100')
@@ -85,21 +81,7 @@ class ProductView(APIView):
         response = client.execute(request)
 
         products = response.body.get('aliexpress_affiliate_product_query_response', {}).get('resp_result', {}).get('result', {}).get('products', {}).get('product', [])
-        '''
-        target_sale_prices = [product["target_sale_price"] for product in products[:20]]
-        
-        if None in target_sale_prices:
-            searched = Search.objects.get(search_url=search_url)
-            product_name = searched.name
-            extracter = CoreWordExtractor()
-            searched.keyword = extracter.extract_corewords(product_name)
-            searched.save()
-            searched_serializer = KeywordsSerializer(searched)
-            return self.get_ali_products(searched.search_url, searched.category_id, searched.keyword)
-        '''
-        
         saved_products = []
-
         for product_data in products[:20]:
             product = Product(
                 product_name=product_data.get('product_title'),
