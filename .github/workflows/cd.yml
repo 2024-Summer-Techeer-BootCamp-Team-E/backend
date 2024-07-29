@@ -40,7 +40,7 @@ jobs:
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> django_backend/.env
 
     - name: Build and push Docker images
-      working-directory: ./backend
+      working-directory: /home/runner/work/backend
       run: |
         echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
         docker-compose build --progress=plain
