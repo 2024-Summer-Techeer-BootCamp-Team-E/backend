@@ -13,7 +13,7 @@ pycparser==2.21
 PyMySQL==1.1.0
 pytz==2023.3.post1
 PyYAML==6.0.1
-sqlparse==0.4.4
+sqlparse==0.5.1
 typing_extensions==4.9.0
 uritemplate==4.1.1
 django-cors-headers==4.3.1
@@ -32,8 +32,9 @@ langchain-core==0.2.23
 langchain-openai==0.1.17
 langchain-text-splitters==0.2.2
 openai==1.37.0
-
 rabbitmq
 celery
 flower
 amqp
+django-prometheus==2.3.1
+prometheus_client==0.20.0

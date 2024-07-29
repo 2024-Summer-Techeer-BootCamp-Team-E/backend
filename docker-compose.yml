@@ -10,6 +10,67 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./django_backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - ./django_backend/static:/app/static
+      - ./django_backend/media:/app/media
+    restart: always
+    networks:
+      - app-network
+    depends_on:
+      - mysqldb
+      - redis_container
+      - rabbitmq
+    command: bash -c "
+      python wait_mysql.py &&
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
+      "
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile
+      args:
+        API_URL: "*"
+    container_name: frontend
+    command: yarn dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../frontend:/frontend
+      - /frontend/node_modules
+    image: run
+    tty: true
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./django_backend/static:/app/static
+      - ./django_backend/media:/app/media
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
 
   redis_container:
     image: redis:latest
@@ -21,11 +82,15 @@ services:
     volumes:
       - ./redis/data:/data
       - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
+    depends_on:
+      - backend
     labels:
       - "name=redis"
       - "mode=standalone"
     restart: always
     command: redis-server /usr/local/conf/redis.conf
+    networks:
+      - app-network
 
   rabbitmq:
     container_name: rabbitmq
@@ -64,59 +129,32 @@ services:
     ports:
       - 5555:5555
 
-  backend:
-    build:
-      context: ./django_backend
-      dockerfile: Dockerfile
-    container_name: backend
+  prometheus:
+    image: prom/prometheus:v2.45.6
+    container_name: prometheus
     ports:
-      - "8000:8000"
+      - "9090:9090"
     volumes:
-      - ./:/app
-      - ./django_backend/static:/app/static
-      - ./django_backend/media:/app/media
-    restart: always
-    depends_on:
-      - mysqldb
-      - redis_container
-      - rabbitmq
-    command: bash -c "
-      python wait_mysql.py &&
-      python manage.py makemigrations &&
-      python manage.py migrate &&
-      python manage.py collectstatic --noinput &&
-      gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
-      "
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - app-network
 
-  nginx:
-    image: nginx:latest
-    container_name: nginx
+  grafana:
+    image: grafana/grafana:9.5.20
+    container_name: grafana
+    volumes:
+      - ./grafana:/etc/grafana/provisioning 
+      - ./grafana/data:/var/lib/grafana 
     ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./django_backend/static:/app/static
-      - ./django_backend/media:/app/media
-    depends_on:
-#      - frontend
-      - backend
-
-#  frontend:
-#    build:
-#      context: ../frontend
-#      dockerfile: ../frontend/Dockerfile
-#      args:
-#        API_URL: "*"
-#    container_name: frontend
-#    command: yarn dev
-#    ports:
-#      - "3000:3000"
-#    volumes:
-#      - ../frontend:/frontend
-#      - /frontend/node_modules
-#    image: run
-#    tty: true
+      - "3000:3000"
+    networks:
+      - app-network
 
 volumes:
   mysql-data:
   redis-data:
+
+networks:
+  app-network:
