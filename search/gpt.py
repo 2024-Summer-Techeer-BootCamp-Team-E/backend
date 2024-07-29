@@ -9,7 +9,8 @@ env.read_env()
 
 OPEN_AI_PROJECT_KEY=env('OPEN_AI_PROJECT_KEY')
 
-class KeywordExtractor:
+# 이거 지금 안쓰고 있음
+class KeywordExtractor: 
     def __init__(self):
         
         self.llm = ChatOpenAI(model_name="gpt-4", openai_api_key=OPEN_AI_PROJECT_KEY)
@@ -52,5 +53,54 @@ class KeywordExtractor:
         self.llm_chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
 
     def extract_keywords(self, user_input):
+        response = self.llm_chain.run({"user_input": user_input})
+        return response
+    
+
+class CoreWordExtractor:
+    def __init__(self):
+        
+        self.llm = ChatOpenAI(model_name="gpt-4", openai_api_key=OPEN_AI_PROJECT_KEY)
+        self.prompt_template = PromptTemplate(
+            input_variables=["user_input"],
+            template="""
+                This GPT identifies the core word or concept from a given product name. 
+                It should extract only the most essential word representing the product itself. 
+                For example, from '삼성 갤럭시 S21 바이올렛 256GB,' the core word is 'S21.' 
+                For 'Attack Shark R1 블루투스 마우스, 18000dpi, PAW3311, 트라이 모드 연결, 매크로 게이밍 마우스, 1000Hz,' the core word is '마우스.' 
+                For '레노버 TH30 무선 헤드폰 블루투스 5.3 이어폰 접이식 게임 헤드셋 스포츠 헤드폰 마이크 음악 이어폰 250mAh,' the core word is '무선 헤드셋.' 
+                Avoid extracting company names, additional descriptions, or product features. 
+                For 'Baseus 차량용 디퓨저 가습기, 자동 공기 청정기, LED 조명, 아로마 테라피,' the core word is '디퓨저 가습기.'
+                Return the results in the following JSON format: 
+                {{ "COREWORD" : <CoreWord> }}
+        
+            {user_input}
+            """
+        )
+        self.llm_chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
+
+    def extract_corewords(self, user_input):
+        response = self.llm_chain.run({"user_input": user_input})
+        return response
+    
+
+class ProductCategorizer:
+    def __init__(self):
+        
+        self.llm = ChatOpenAI(model_name="gpt-4", openai_api_key=OPEN_AI_PROJECT_KEY)
+        self.prompt_template = PromptTemplate(
+            input_variables=["user_input"],
+            template="""
+                This GPT identifies the category of a given product name from seven categories: FASHION, HOME, ELECTRONICS, BEAUTY, SPORTS, AUTOMOBILE, and EXTRA. 
+                It outputs the category in JSON format with the key 'CATEGORY_ID'. 
+                If the product name isn't clear, it returns an error message in JSON format. 
+                It strictly provides the category or an error message.
+        
+                {user_input}
+            """
+        )
+        self.llm_chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
+
+    def categorizer(self, user_input):
         response = self.llm_chain.run({"user_input": user_input})
         return response

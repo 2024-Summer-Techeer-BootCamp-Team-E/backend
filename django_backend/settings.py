@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'likeProducts',
     'search',
     'rest_framework.authtoken',
+    'django_prometheus',
 ]
 
 RQ_QUEUES = {
@@ -51,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'django_backend.urls'
@@ -75,7 +78,8 @@ WSGI_APPLICATION = 'django_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        # 'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django_prometheus.db.backends.mysql',
         'NAME': env('DATABASE_NAME'),
         'USER': env('DATABASE_USER'),
         'PASSWORD': env('DATABASE_PASS'),
