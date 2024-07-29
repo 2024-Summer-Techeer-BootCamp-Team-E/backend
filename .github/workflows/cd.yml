@@ -24,24 +24,27 @@ jobs:
 
     - name: Set environment variables for MySQL
       run: |
-        echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> db/.env
+        mkdir -p db
+        echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" > db/.env
         echo "MYSQL_ROOT_USER=${{ secrets.MYSQL_ROOT_USER }}" >> db/.env
         echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> db/.env
         echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> db/.env
 
     - name: Set environment variables for Django
       run: |
-        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> django_backend/.env
+        mkdir -p django_backend
+        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" > django_backend/.env
         echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> django_backend/.env
         echo "DATABASE_PASS=${{ secrets.DATABASE_PASS }}" >> django_backend/.env
         echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> django_backend/.env
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> django_backend/.env
 
     - name: Build and push Docker images
+      working-directory: /home/runner/work/backend
       run: |
         echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
-        docker-compose -f docker-compose.yml build
-        docker-compose -f docker-compose.yml push
+        docker-compose build --progress=plain
+        docker-compose push
 
     - name: SSH into server and deploy
       uses: appleboy/ssh-action@v0.1.10
@@ -53,8 +56,7 @@ jobs:
         script: |
           cd /home/ubuntu/backend
           git pull
-          docker-compose -f docker-compose.yml pull
-          docker-compose -f docker-compose.yml up -d
+          docker-compose pull
+          docker-compose up -d
           sudo systemctl restart gunicorn
           sudo systemctl restart nginx
-
