@@ -37,6 +37,7 @@ class ProductView(APIView):
 
     def handle_redis_miss(self, search_url):
 
+        '''
         category_list = ['0',
                         '3, 200000345, 200000343, 200000297, 201768104, 200574005, 200165144',
                         '6, 13, 15, 1503, 39',
@@ -45,11 +46,13 @@ class ProductView(APIView):
                         '18',
                         '34',
                         '30, 21, 26, 36, 1420, 320']
+        '''
         
         try:
             searched = Search.objects.get(search_url=search_url)
-            category = searched.category_id
-            category_id = category_list[category]
+            category_id = searched.category_id
+            #category_id = category_list[category]
+            #category_id = 
             keyword = searched.keyword
             products = self.get_ali_products(search_url, category_id, keyword)
             #test case
@@ -65,7 +68,7 @@ class ProductView(APIView):
         client = base.IopClient(URL, APP_KEY, APP_SECRET)
         request = base.IopRequest('aliexpress.affiliate.product.query')
         request.add_api_param('app_signature', '')
-        request.add_api_param('category_ids', category_id)
+        request.add_api_param('category_ids', ' ')
         request.add_api_param('fields', 'commission_rate,sale_price')
         request.add_api_param('keywords', keyword)
         request.add_api_param('max_sale_price', '100')
@@ -82,7 +85,9 @@ class ProductView(APIView):
         response = client.execute(request)
 
         products = response.body.get('aliexpress_affiliate_product_query_response', {}).get('resp_result', {}).get('result', {}).get('products', {}).get('product', [])
+        '''
         target_sale_prices = [product["target_sale_price"] for product in products[:20]]
+        
         if None in target_sale_prices:
             searched = Search.objects.get(search_url=search_url)
             product_name = searched.name
@@ -91,6 +96,7 @@ class ProductView(APIView):
             searched.save()
             searched_serializer = KeywordsSerializer(searched)
             return self.get_ali_products(searched.search_url, searched.category_id, searched.keyword)
+        '''
         
         saved_products = []
 

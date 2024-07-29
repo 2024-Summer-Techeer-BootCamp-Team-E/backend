@@ -81,3 +81,25 @@ class CoreWordExtractor:
     def extract_corewords(self, user_input):
         response = self.llm_chain.run({"user_input": user_input})
         return response
+    
+
+class ProductCategorizer:
+    def __init__(self):
+        
+        self.llm = ChatOpenAI(model_name="gpt-4", openai_api_key=OPEN_AI_PROJECT_KEY)
+        self.prompt_template = PromptTemplate(
+            input_variables=["user_input"],
+            template="""
+                This GPT identifies the category of a given product name from seven categories: FASHION, HOME, ELECTRONICS, BEAUTY, SPORTS, AUTOMOBILE, and EXTRA. 
+                It outputs the category in JSON format with the key 'CATEGORY_ID'. 
+                If the product name isn't clear, it returns an error message in JSON format. 
+                It strictly provides the category or an error message.
+        
+                {user_input}
+            """
+        )
+        self.llm_chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
+
+    def categorizer(self, user_input):
+        response = self.llm_chain.run({"user_input": user_input})
+        return response
