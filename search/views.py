@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from .amazon import Comprehend
 from .models import Search
-from .gpt import KeywordExtractor
+from .gpt import KeywordExtractor, CoreWordExtractor, ProductCategorizer
 from products.models import Product
 from .serializers import KeywordsSerializer
 from .serializers import KeywordRequestSerializer, KeywordResponseSerializer
@@ -47,17 +47,35 @@ class KeywordView(APIView):
             return Response({"Error : ", str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         comprehend = Comprehend()
-        extracter = KeywordExtractor()
+        #extracter = KeywordExtractor()
+        categorizer = ProductCategorizer()
+        extracter = CoreWordExtractor()
         translate_text = comprehend.translate(product.name)
-                
+        
+        keyword_list = []
+
+        category_list = ['', 'FASHION', 'HOME', 'ELECTRONICS', 'BEAUTY', 'SPORTS', 'AUTOMOBILE', 'EXTRA']
+        category = json.loads(categorizer.categorizer(translate_text))
+        for i in range(1, len(category_list)):
+            if category["CATEGORY_ID"] == category_list[i]:
+                category_id = i
+                break
+        
+        product_keyword = json.loads(extracter.extract_corewords(translate_text))
+        keyword_list.append(product_keyword["COREWORD"])
+
+        product_keyword = comprehend.entities1(translate_text)
+
+        '''
+        commercial_item = extract_commercial_item_text(product_keyword)
+        if isinstance(commercial_item, list):
+            commercial_item = ', '.join(commercial_item)
+        keyword_list.append(commercial_item)
+        '''
+
+        '''
         types = ['ORGANIZATION', 'COMMERCIAL_ITEM', 'QUANTITY', 'OTHER', 'FASHION', 'HOME', 
                 'SPORTS', 'ELECTRONICS', 'BEAUTY', 'AUTOMOBILE', 'EXTRA', 'FEATURE']
-        keyword_list = []
-        
-        keyword = comprehend.entities1(translate_text)
-
-        #commercial_item_texts = extract_commercial_item_text(keyword)
-        #keyword_list.append(commercial_item_texts)
 
         if 'COMMERCIAL_ITEM' not in [entity['Type'] for entity in keyword['Entities']]:
             gpt_keyword = extracter.extract_keywords(translate_text)
@@ -66,22 +84,6 @@ class KeywordView(APIView):
 
             # KEYWORDS 필드에 접근 
             keyword_list = data_dict["KEYWORDS"]
-            '''
-            if data_dict["CATEGORIES"].get("FASHION"):
-                category_id = 1
-            elif data_dict["CATEGORIES"].get("HOME"):
-                category_id = 2
-            elif data_dict["CATEGORIES"].get("ELECTRONICS"):
-                category_id = 3
-            elif data_dict["CATEGORIES"].get("BEAUTY"):
-                category_id = 4
-            elif data_dict["CATEGORIES"].get("SPORTS"):
-                category_id = 5
-            elif data_dict["CATEGORIES"].get("AUTOMOBILE"):
-                category_id = 6
-            elif data_dict["CATEGORIES"].get("EXTRA"):
-                category_id = 7
-            '''
             category_list = data_dict["PERCENTAGE"]
             max_key = max(category_list, key=lambda k: category_list[k])
             category_id = types.index(max_key)
@@ -92,19 +94,13 @@ class KeywordView(APIView):
                     keyword_list.append(entity.get('Text'))
 
             category_id = 0
+        '''
         
         if isinstance(keyword_list, list):
-            keyword_str = ', '.join(keyword_list)
-
-        '''
-        if isinstance(category_list[category], list):
-            category_id = ', '.join(category_list)
-        '''
-
-        #category_id = [", ".join(map(str, category_list[category]))]
+            keyword = ', '.join(keyword_list)
 
         product.category_id = category_id
-        product.keyword = keyword_str
+        product.keyword = keyword
         product.save()
 
         serializer = KeywordsSerializer(product)
