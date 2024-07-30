@@ -52,3 +52,18 @@ output.elasticsearch:
 http:
   enabled: true
   host: 0.0.0.0
+
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/*.log  # 수집할 로그 파일 위치
+
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5044"]
+
+setup.kibana:
+  host: "kibana:5601"
+  username: "elastic"
+  password: "changeme"

@@ -194,7 +194,7 @@ services:
 
   filebeat:
     build:
-      context: docker-elk/extensions/filebeat/
+      context: docker-elk/filebeat/
       args:
         ELASTIC_VERSION: 8.5.2
     entrypoint: "filebeat -e -strict.perms=false"
@@ -211,6 +211,7 @@ services:
 volumes:
   mysql-data:
   redis-data:
+  elasticsearch:
 
 networks:
   app-network:
