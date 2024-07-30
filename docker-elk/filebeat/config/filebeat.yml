@@ -37,13 +37,14 @@ processors:
 monitoring:
   enabled: true
   elasticsearch:
+    hosts: ["logstash:5044"]
     username: beats_system
-    password: ${BEATS_SYSTEM_PASSWORD}
+    password: '12345678'  # 여기에 비밀번호를 추가합니다
 
-output.elasticsearch:
-  hosts: [ http://elasticsearch:9200 ]
-  username: filebeat_internal
-  password: ${FILEBEAT_INTERNAL_PASSWORD}
+#output.elasticsearch:
+#  hosts: [ http://elasticsearch:9200 ]
+#  username: filebeat_internal
+#  password: ${FILEBEAT_INTERNAL_PASSWORD}
 
 ## HTTP endpoint for health checking
 ## https://www.elastic.co/guide/en/beats/filebeat/current/http-endpoint.html
