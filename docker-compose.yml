@@ -85,22 +85,22 @@ services:
 #       - app-network
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: ../frontend/Dockerfile
-      args:
-        API_URL: "*"
-    container_name: frontend
-    command: yarn dev
-    ports:
-      - "3001:3001"
-    volumes:
-      - ../frontend:/frontend
-      - /frontend/node_modules
-    image: run
-    tty: true
-    networks:
-      - app-network
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile
+      args:
+        API_URL: "*"
+    container_name: frontend
+    command: yarn dev
+    ports:
+    - "3001:3001"
+    volumes:
+    - ../frontend:/frontend
+    - /frontend/node_modules
+    image: run
+    tty: true
+    networks:
+    - app-network
   
   
     
@@ -214,7 +214,5 @@ volumes:
 
 networks:
   app-network:
-
-networks:
   elk:
     driver: bridge
