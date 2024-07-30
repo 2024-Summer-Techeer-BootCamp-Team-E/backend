@@ -47,7 +47,6 @@ class ProductView(APIView):
         try:
             searched = Search.objects.get(search_url=search_url)
             category_id = searched.category_id
-            #category_id = category_list[category]
             keyword = searched.keyword
             products = self.get_ali_products(search_url, category_id, keyword)
             return Response(products, status=status.HTTP_200_OK)

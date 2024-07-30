@@ -20,7 +20,8 @@ from selenium.webdriver.chrome.options import Options
 import time
 
 # Celery
-from .tasks import get_chrome, get_ali, get_keyword
+from .tasks import get_chrome, get_ali
+from search.tasks import get_keyword
 from celery import chain
 
 # 로거 설정

@@ -1,103 +1,35 @@
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from drf_yasg.utils import swagger_auto_schema
 from .amazon import Comprehend
 from .models import Search
-from .gpt import KeywordExtractor
-from products.models import Product
-from .serializers import KeywordsSerializer
-from .serializers import KeywordRequestSerializer, KeywordResponseSerializer
 import json
 from celery import shared_task
-
+from .gpt import CoreWordExtractor, ProductCategorizer
 
 @shared_task
 def get_keyword(search_url):
-  try:
-    if not search_url:
-      return Response({"error": "URL is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-    existing_urls = Search.objects.filter(search_url=search_url)
-    if existing_urls.exists():
-      # keyword 값이 null인지 확인
-      null_keywords = existing_urls.filter(keyword__isnull=True)
-      if null_keywords.exists():
-        pass
-
-  except Exception as e:
-    return Response({"Error : ", str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-  product = get_object_or_404(Search, search_url=search_url)
-
-  try:
-    if not product.name:
-      return Response({"error": "No name provided"}, status=status.HTTP_400_BAD_REQUEST)
-  except Exception as e:
-    return Response({"Error : ", str(e)}, status=status.HTTP_400_BAD_REQUEST)
+  search_product = Search.objects.get(search_url=search_url)
 
   comprehend = Comprehend()
-  extracter = KeywordExtractor()
-  translate_text = comprehend.translate(product.name)
+  categorizer = ProductCategorizer()
+  extracter = CoreWordExtractor()
+  translate_text = comprehend.translate(search_product.name)
 
-  types = ['ORGANIZATION', 'COMMERCIAL_ITEM', 'QUANTITY', 'OTHER', 'FASHION', 'HOME',
-           'SPORTS', 'ELECTRONICS', 'BEAUTY', 'AUTOMOBILE', 'EXTRA', 'FEATURE']
   keyword_list = []
 
-  keyword = comprehend.entities1(translate_text)
+  category_list = ['', 'FASHION', 'HOME', 'ELECTRONICS', 'BEAUTY', 'SPORTS', 'AUTOMOBILE', 'EXTRA']
+  category = json.loads(categorizer.categorizer(translate_text))
+  for i in range(1, len(category_list)):
+    if category["CATEGORY_ID"] == category_list[i]:
+      category_id = i
+      break
 
-  # commercial_item_texts = extract_commercial_item_text(keyword)
-  # keyword_list.append(commercial_item_texts)
-
-  if 'COMMERCIAL_ITEM' not in [entity['Type'] for entity in keyword['Entities']]:
-    gpt_keyword = extracter.extract_keywords(translate_text)
-    # JSON 문자열을 파이썬 딕셔너리로 로드
-    data_dict = json.loads(gpt_keyword)
-
-    # KEYWORDS 필드에 접근
-    keyword_list = data_dict["KEYWORDS"]
-    '''
-    if data_dict["CATEGORIES"].get("FASHION"):
-        category_id = 1
-    elif data_dict["CATEGORIES"].get("HOME"):
-        category_id = 2
-    elif data_dict["CATEGORIES"].get("ELECTRONICS"):
-        category_id = 3
-    elif data_dict["CATEGORIES"].get("BEAUTY"):
-        category_id = 4
-    elif data_dict["CATEGORIES"].get("SPORTS"):
-        category_id = 5
-    elif data_dict["CATEGORIES"].get("AUTOMOBILE"):
-        category_id = 6
-    elif data_dict["CATEGORIES"].get("EXTRA"):
-        category_id = 7
-    '''
-    category_list = data_dict["PERCENTAGE"]
-    max_key = max(category_list, key=lambda k: category_list[k])
-    category_id = types.index(max_key)
-
-  else:
-    for entity in keyword.get('Entities', []):
-      if entity.get('Type') in types:
-        keyword_list.append(entity.get('Text'))
-
-    category_id = 0
+  product_keyword = json.loads(extracter.extract_corewords(translate_text))
+  keyword_list.append(product_keyword["COREWORD"])
 
   if isinstance(keyword_list, list):
-    keyword_str = ', '.join(keyword_list)
+    keyword = ', '.join(keyword_list)
 
-  '''
-  if isinstance(category_list[category], list):
-      category_id = ', '.join(category_list)
-  '''
+  search_product.category_id = category_id
+  search_product.keyword = keyword
+  search_product.save()
 
-  # category_id = [", ".join(map(str, category_list[category]))]
-
-  product.category_id = category_id
-  product.keyword = keyword_str
-  product.save()
-
-  # serializer = KeywordsSerializer(product)
-  # return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+  return search_url

@@ -88,19 +88,21 @@ services:
       - app-network
 
   frontend:
-      build:
-        context: ../frontend
-        dockerfile: Dockerfile
-        args:
-          API_URL: "*"
-      container_name: frontend
-      command: yarn dev
-      ports:
-      - "3001:3001"
-      volumes:
-        - ../frontend:/frontend
-        - /frontend/node_modules
-      tty: true
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        API_URL: "*"
+    container_name: frontend
+    command: yarn dev
+    ports:
+    - "3001:3001"
+    volumes:
+      - ../frontend:/frontend
+      - /frontend/node_modules
+    tty: true
+    networks:
+      - app-network
 
 
   celery_worker:
@@ -131,28 +133,28 @@ services:
     networks:
       - app-network
 
-#  prometheus:
-#    image: prom/prometheus:v2.45.6
-#    container_name: prometheus
-#    ports:
-#      - "9090:9090"
-#    volumes:
-#      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-#    command:
-#      - "--config.file=/etc/prometheus/prometheus.yml"
-#    networks:
-#      - app-network
-#
-#  grafana:
-#    image: grafana/grafana:9.5.20
-#    container_name: grafana
-#    volumes:
-#      - ./grafana:/etc/grafana/provisioning
-#      - ./grafana/data:/var/lib/grafana
-#    ports:
-#      - "3000:3000"
-#    networks:
-#      - app-network
+  prometheus:
+    image: prom/prometheus:v2.45.6
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:9.5.20
+    container_name: grafana
+    volumes:
+      - ./grafana:/etc/grafana/provisioning
+      - ./grafana/data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
 
 volumes:
   mysql-data:

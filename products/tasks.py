@@ -34,122 +34,80 @@ APP_SECRET = env('ALI_APPSECRET')
 
 logger = logging.getLogger(__name__)
 
-
-@shared_task
-def get_ali_products(search_url, category_id, keyword):
-  client = base.IopClient(URL, APP_KEY, APP_SECRET)
-  request = base.IopRequest('aliexpress.affiliate.product.query')
-  request.add_api_param('app_signature', '')
-  request.add_api_param('category_ids', category_id)
-  request.add_api_param('fields', 'commission_rate,sale_price')
-  request.add_api_param('keywords', keyword)
-  request.add_api_param('max_sale_price', '100')
-  request.add_api_param('min_sale_price', '15')
-  request.add_api_param('page_no', '1')
-  request.add_api_param('page_size', '20')
-  request.add_api_param('platform_product_type', 'ALL')
-  request.add_api_param('sort', '')
-  request.add_api_param('target_currency', 'KRW')
-  request.add_api_param('target_language', 'KO')
-  request.add_api_param('tracking_id', 'default')
-  request.add_api_param('ship_to_country', '')
-  request.add_api_param('delivery_days', '')
-  response = client.execute(request)
-
-  products = response.body.get('aliexpress_affiliate_product_query_response', {}).get('resp_result', {}).get('result', {}).get('products', {}).get('product', [])
-  saved_products = []
-  for product_data in products[:20]:
-    product = Product(
-      product_name=product_data.get('product_title'),
-      price=product_data.get('target_app_sale_price'),
-      delivery_charge=0,
-      link=product_data.get('product_detail_url'),
-      image_url=product_data.get('product_main_image_url'),
-      category_id=category_id
-    )
-    saved_products.append(product)
-
-  ProductManager.save_to_redis(search_url, saved_products)
-  serializer = ProductSerializer(saved_products, many=True)
-  logger.debug('Serialized data: %s', serializer.data)
-  return serializer.data
-
-
 @shared_task
 def get_ali(search_url):
   def get_ali_product(search_url, category_id, keyword):
-    client = base.IopClient(URL, APP_KEY, APP_SECRET)
-    request = base.IopRequest('aliexpress.affiliate.product.query')
-    request.add_api_param('app_signature', '')
-    request.add_api_param('category_ids', category_id)
-    request.add_api_param('fields', 'commission_rate,sale_price')
-    request.add_api_param('keywords', keyword)
-    request.add_api_param('max_sale_price', '100')
-    request.add_api_param('min_sale_price', '15')
-    request.add_api_param('page_no', '1')
-    request.add_api_param('page_size', '20')
-    request.add_api_param('platform_product_type', 'ALL')
-    request.add_api_param('sort', '')
-    request.add_api_param('target_currency', 'KRW')
-    request.add_api_param('target_language', 'KO')
-    request.add_api_param('tracking_id', 'default')
-    request.add_api_param('ship_to_country', '')
-    request.add_api_param('delivery_days', '')
-    response = client.execute(request)
+    try:
+      client = base.IopClient(URL, APP_KEY, APP_SECRET)
+      request = base.IopRequest('aliexpress.affiliate.product.query')
+      request.add_api_param('app_signature', '')
+      request.add_api_param('category_ids', '')
+      request.add_api_param('fields', 'commission_rate,sale_price')
+      request.add_api_param('keywords', keyword)
+      request.add_api_param('max_sale_price', '100')
+      request.add_api_param('min_sale_price', '15')
+      request.add_api_param('page_no', '1')
+      request.add_api_param('page_size', '20')
+      request.add_api_param('sort', '')
+      request.add_api_param('target_currency', 'KRW')
+      request.add_api_param('target_language', 'KO')
+      request.add_api_param('tracking_id', 'default')
+      request.add_api_param('ship_to_country', '')
+      request.add_api_param('delivery_days', '')
+      response = client.execute(request)
 
-    products = response.body.get('aliexpress_affiliate_product_query_response', {}).get('resp_result', {}).get('result',
-                                                                                                               {}).get(
-      'products', {}).get('product', [])
-    saved_products = []
-    for product_data in products[:20]:
-      product = Product(
-        product_name=product_data.get('product_title'),
-        price=product_data.get('target_app_sale_price'),
-        delivery_charge=0,
-        link=product_data.get('product_detail_url'),
-        image_url=product_data.get('product_main_image_url'),
-        category_id=category_id
-      )
-      saved_products.append(product)
+      logger.debug("AliExpress API 응답: %s", response)
 
-    ProductManager.save_to_redis(search_url, saved_products)
-    serializer = ProductSerializer(saved_products, many=True)
-    return serializer.data
+      products = response.body.get('aliexpress_affiliate_product_query_response', {}).get('resp_result', {}).get('result', {}).get('products', {}).get('product', [])
+      saved_products = []
+      for product_data in products[:20]:
+        product = Product(
+          product_name=product_data.get('product_title'),
+          price=product_data.get('target_app_sale_price'),
+          delivery_charge=0,
+          link=product_data.get('product_detail_url'),
+          image_url=product_data.get('product_main_image_url'),
+          category_id=category_id
+        )
+        saved_products.append(product)
+
+      ProductManager.save_to_redis(search_url, saved_products)
+      serializer = ProductSerializer(saved_products, many=True)
+      return serializer.data
+    except Exception as e:
+      logger.error("AliExpress API 호출 중 오류 발생: %s", e)
+      return {'error': 'AliExpress API 호출 중 오류 발생'}
 
   def handle_redis_miss(search_url):
 
-    category_list = ['0',
-                     '3, 200000345, 200000343, 200000297, 201768104, 200574005, 200165144',
-                     '6, 13, 15, 1503, 39',
-                     '7, 44, 502, 509',
-                     '66',
-                     '18',
-                     '34',
-                     '30, 21, 26, 36, 1420, 320']
-
     try:
       searched = Search.objects.get(search_url=search_url)
-      category = searched.category_id
-      category_id = category_list[category]
-      # keyword = searched.keyword
-      keyword = 'galaxy'
+      category_id = searched.category_id
+      keyword = searched.keyword
       products = get_ali_product(search_url, category_id, keyword)
       serializer = ProductSerializer(products, many=True)
+      # return keyword
       return serializer.data
     except Search.DoesNotExist:
+      logger.error("Search URL이 존재하지 않습니다: %s", search_url)
       return {'error': 'URL을 입력하시오.'}
+    except Exception as e:
+      logger.error("handle_redis_miss 중 오류 발생: %s", e)
+      return {'error': '데이터베이스 접근 중 오류 발생'}
 
-  # Redis에 검색 기록이 있는 경우
-  if ProductManager.exists_in_redis(search_url):
-    product_from_redis = ProductManager.get_from_redis(search_url)
-    # Redis에 상품 기록이 있는 경우
-    if product_from_redis:
-      serializer = ProductSerializer(product_from_redis, many=True)
-      return serializer.data
+  try:
+    if ProductManager.exists_in_redis(search_url):
+      product_from_redis = ProductManager.get_from_redis(search_url)
+      if product_from_redis:
+        serializer = ProductSerializer(product_from_redis, many=True)
+        return serializer.data
+      else:
+        return handle_redis_miss(search_url)
     else:
       return handle_redis_miss(search_url)
-  else:
-    return handle_redis_miss(search_url)
+  except Exception as e:
+    logger.error("Redis 접근 중 오류 발생: %s", e)
+    return {'error': 'Redis 접근 중 오류 발생'}
 
 @shared_task
 def get_chrome(search_url):
@@ -242,9 +200,6 @@ def get_chrome(search_url):
   chrome_options.binary_location = "/usr/bin/chromium"
 
   driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
-
-  if not search_url:
-    return {'error': 'URL을 입력하시오.'}
 
   existing_entry = Search.objects.filter(search_url=search_url).first()
   if existing_entry:
