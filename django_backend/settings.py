@@ -33,9 +33,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_prometheus',
 ]
-
+#
 RQ_QUEUES = {
-    'default': {
+    'cache': {
         # 'HOST': 'localhost',
         'HOST': 'redis',
         'PORT': 6379,
@@ -91,7 +91,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://redis:6379',
+        'LOCATION': 'redis://redis:6379/0',
     }
 }
 
@@ -179,3 +179,13 @@ SWAGGER_SETTINGS = {
     'DEFAULT_API_KEY_NAME': 'Authorization',
     'DEFAULT_API_KEY_PREFIX': 'Bearer',
 }
+
+# Celery configuration
+CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672/'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/1'  # DB 1 for Celery results
+
+# Additional Celery settings
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul'

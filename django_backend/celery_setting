@@ -1,0 +1,80 @@
+django_backend/settings.py
+
+# Celery configuration
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'  # DB 1 for Celery results
+
+# Additional Celery settings
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+------------------------------------
+django_backend/requirements.txt
+
+celery
+rabbitmq
+
+------------------------------------
+django_backend/celery.py
+
+from __future__ import absolute_import, unicode_literals
+import os
+from celery import Celery
+
+# set the default Django settings module for the 'celery' program.
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_backend.settings')
+
+
+# 셀러리 정의한 앱
+app = Celery('applycelery')
+
+# Using a string here means the worker doesn't have to serialize
+# the configuration object to child processes.
+# - namespace='CELERY' means all celery-related configuration keys
+#   should have a `CELERY_` prefix.
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# Load task modules from all registered Django app configs.
+app.autodiscover_tasks()
+
+
+@app.task(bind=True)
+def debug_task(self):
+    print('Request: {0!r}'.format(self.request))
+
+
+---------------------------------------
+django_backend/__init__.py
+
+from __future__ import absolute_import, unicode_literals
+
+# This will make sure the app is always imported when
+# Django starts so that shared_task will use this app.
+from .celery import app as celery_app
+
+__all__ = ['celery_app']
+
+------------------------------------------
+# 샐러리 정의한 앱
+applycelery/tasks.py
+
+# Create your tasks here
+from __future__ import absolute_import, unicode_literals
+from celery import shared_task
+
+@shared_task
+def add(x, y):
+    return x + y
+
+@shared_task
+def mul(x, y):
+    return x * y
+
+@shared_task
+def xsum(numbers):
+    return sum(numbers)
+
+---------------------------------------------
+
+
