@@ -39,7 +39,6 @@ services:
       gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
       "
 
-
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -90,20 +89,20 @@ services:
   frontend:
     build:
       context: ../frontend
-      dockerfile: Dockerfile
+      dockerfile: ../frontend/Dockerfile
       args:
         API_URL: "*"
     container_name: frontend
     command: yarn dev
     ports:
-    - "3001:3001"
+      - "3001:3001"
     volumes:
       - ../frontend:/frontend
       - /frontend/node_modules
+    image: run
     tty: true
     networks:
       - app-network
-
 
   celery_worker:
       restart: always
