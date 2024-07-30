@@ -2,10 +2,10 @@ version: "3.8"
 
 services:
   mysqldb:
-    build: ./db
+    build: db
     container_name: mysqldb
     env_file:
-      - "./db/.env"
+      - "db/.env"
     ports:
       - "3306:3306"
     volumes:
@@ -39,23 +39,6 @@ services:
       gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
       "
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: ../frontend/Dockerfile
-      args:
-        API_URL: "*"
-    container_name: frontend
-    command: yarn dev
-    ports:
-      - "3001:3001"
-    volumes:
-      - ../frontend:/frontend
-      - /frontend/node_modules
-    image: run
-    tty: true
-    networks:
-      - app-network
 
   nginx:
     image: nginx:latest
@@ -67,7 +50,6 @@ services:
       - ./django_backend/static:/app/static
       - ./django_backend/media:/app/media
     depends_on:
-      - frontend
       - backend
     networks:
       - app-network
@@ -104,6 +86,22 @@ services:
       - .:/code
     networks:
       - app-network
+
+frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        API_URL: "*"
+    container_name: frontend
+    command: yarn dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/frontend
+      - /frontend/node_modules
+    tty: true
+
 
   celery_worker:
       restart: always
