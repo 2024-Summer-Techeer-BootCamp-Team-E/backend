@@ -37,7 +37,6 @@ services:
       gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
       "
 
-
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -72,38 +71,36 @@ services:
     networks:
       - app-network
 
-#   prometheus-example:
-#     image: prom/prometheus:v2.45.6
-#     container_name: prometheus-example
-#     ports:
-#       - "9090:9090"
-#     volumes:
-#       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-#     command:
-#       - "--config.file=/etc/prometheus/prometheus.yml"
-#     networks:
-#       - app-network
+  #   prometheus-example:
+  #     image: prom/prometheus:v2.45.6
+  #     container_name: prometheus-example
+  #     ports:
+  #       - "9090:9090"
+  #     volumes:
+  #       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     command:
+  #       - "--config.file=/etc/prometheus/prometheus.yml"
+  #     networks:
+  #       - app-network
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: ../frontend/Dockerfile
-      args:
-        API_URL: "*"
-    container_name: frontend
-    command: yarn dev
-    ports:
-      - "3001:3001"
-    volumes:
-      - ../frontend:/frontend
-      - /frontend/node_modules
-    image: run
-    tty: true
-    networks:
-      - app-network
-  
-  
-    
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile
+      args:
+        API_URL: "*"
+    container_name: frontend
+    command: yarn dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../frontend:/frontend
+      - /frontend/node_modules
+    image: run
+    tty: true
+    networks:
+      - app-network
+
   prometheus:
     image: prom/prometheus:v2.45.6
     container_name: prometheus
@@ -126,7 +123,6 @@ services:
       - "3000:3000"
     networks:
       - app-network
-
 
 volumes:
   mysql-data:
