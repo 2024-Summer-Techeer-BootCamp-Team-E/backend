@@ -175,7 +175,6 @@ def get_chrome(search_url):
       return Response(serializer.data, status=status.HTTP_200_OK)
 
     driver.get(url)
-    time.sleep(3)
     wait = WebDriverWait(driver, 10)
     product_info_list = []
 
