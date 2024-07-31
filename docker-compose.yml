@@ -2,10 +2,10 @@ version: "3.8"
 
 services:
   mysqldb:
-    build: ./db
+    build: db
     container_name: mysqldb
     env_file:
-      - "./db/.env"
+      - "db/.env"
     ports:
       - "3306:3306"
     volumes:
@@ -29,6 +29,8 @@ services:
       - app-network
     depends_on:
       - mysqldb
+      - redis_container
+      - rabbitmq
     command: bash -c "
       python wait_mysql.py &&
       python manage.py makemigrations &&
@@ -36,6 +38,38 @@ services:
       python manage.py collectstatic --noinput &&
       gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
       "
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./django_backend/static:/app/static
+      - ./django_backend/media:/app/media
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  redis_container:
+    image: redis:latest
+    container_name: redis
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    restart: always
+    command: redis-server /usr/local/conf/redis.conf
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -55,63 +89,70 @@ services:
     networks:
       - app-network
 
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./django_backend/static:/app/static
-      - ./django_backend/media:/app/media
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - app-network
-
-  redis_container:
-    image: redis:latest
-    container_name: redis
+  #  prometheus:
+  #    image: prom/prometheus:v2.45.6
+  #    container_name: prometheus
+  #    ports:
+  #      - "9090:9090"
+  #    volumes:
+  #      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #    command:
+  #      - "--config.file=/etc/prometheus/prometheus.yml"
+  #    networks:
+  #      - app-network
+  #
+  #  grafana:
+  #    image: grafana/grafana:9.5.20
+  #    container_name: grafana
+  #    volumes:
+  #      - ./grafana:/etc/grafana/provisioning
+  #      - ./grafana/data:/var/lib/grafana
+  #    ports:
+  #      - "3000:3000"
+  #    networks:
+  #      - app-network
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.7.14-management-alpine
     environment:
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
       - TZ=Asia/Seoul
     ports:
-      - "6379:6379"
+      - "5672:5672"
+      - "15672:15672"
     volumes:
-      - ./redis/data:/data
-      - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
-    depends_on:
-      - backend
-    labels:
-      - "name=redis"
-      - "mode=standalone"
-    restart: always
-    command: redis-server /usr/local/conf/redis.conf
+      - .:/code
     networks:
       - app-network
 
-  # prometheus:
-  #   image: prom/prometheus:v2.45.6
-  #   container_name: prometheus
-  #   ports:
-  #     - "9090:9090"
-  #   volumes:
-  #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-  #   command:
-  #     - "--config.file=/etc/prometheus/prometheus.yml"
-  #   networks:
-  #     - app-network
+  celery_worker:
+    restart: always
+    build:
+      context: ./django_backend
+      dockerfile: Dockerfile
+    command: "celery -A django_backend worker --loglevel=info"
+    volumes:
+      - ./:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=django_backend.settings
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      - TZ=Asia/Seoul
+    networks:
+      - app-network
+    depends_on:
+      - rabbitmq
 
-  # grafana:
-  #   image: grafana/grafana:9.5.20
-  #   container_name: grafana
-  #   volumes:
-  #     - ./grafana:/etc/grafana/provisioning #그라파나 설정(config) 볼륨. 대부분 불필요 하지만 놔두시는게 좋습니다.
-  #     - ./grafana/data:/var/lib/grafana #그라파나 대시보드 데이터. 이걸 설정 해둬야지 가상 볼륨을 날리셔도 대시보드들이 남아있습니다.
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - app-network
+  flower:
+    image: mher/flower
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      - FLOWER_PORT=5555
+      - TZ=Asia/Seoul
+    ports:
+      - 5555:5555
+    networks:
+      - app-network
 
 volumes:
   mysql-data:
