@@ -8,6 +8,7 @@ from search.models import Search
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from search.serializers import SearchSerializer
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 import logging
 
 # 크롤링
@@ -130,9 +131,6 @@ class ScrapeTitleView(APIView):
 
     def post(self, request):
         url = request.data.get('url', None)
-        chrome(url)
-        
-        url = request.data.get('url', None)
 
         # Setup Chrome options
         chrome_options = Options()
@@ -213,7 +211,7 @@ class ScrapeTitleView(APIView):
 
 class Async_chain(APIView):
     @swagger_auto_schema(
-        operation_description="URL에서 제품 정보를 스크랩",
+        operation_description="URL에서 제품 정보를 스크랩 -> keyword 분석 -> Ali API 호출",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -235,4 +233,25 @@ class Async_chain(APIView):
         result = task_chain()
 
         products = result.get()
-        return Response(products)
+
+        try:
+            search = Search.objects.get(search_url=url)
+        except MultipleObjectsReturned:
+            return Response({"error": "Multiple search results found for the given URL."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            return Response({"error": "No search results found for the given URL."}, status=status.HTTP_404_NOT_FOUND)
+
+        search_data = {
+            "name": search.name,
+            "price": search.price,
+            "delivery_charge": search.delivery_charge,
+            "image_url": search.image_url,
+            "search_url": search.search_url
+        }
+
+        serializer = SearchSerializer(data=search_data)
+        if serializer.is_valid():
+            return Response({"search": serializer.data, "products": products}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
