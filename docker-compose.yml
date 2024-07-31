@@ -37,7 +37,6 @@ services:
       gunicorn --bind 0.0.0.0:8000 django_backend.wsgi:application
       "
 
-
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -72,38 +71,24 @@ services:
     networks:
       - app-network
 
-#   prometheus-example:
-#     image: prom/prometheus:v2.45.6
-#     container_name: prometheus-example
-#     ports:
-#       - "9090:9090"
-#     volumes:
-#       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-#     command:
-#       - "--config.file=/etc/prometheus/prometheus.yml"
-#     networks:
-#       - app-network
-
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: ../frontend/Dockerfile
-      args:
-        API_URL: "*"
-    container_name: frontend
-    command: yarn dev
-    ports:
-      - "3001:3001"
-    volumes:
-      - ../frontend:/frontend
-      - /frontend/node_modules
-    image: run
-    tty: true
-    networks:
-      - app-network
-  
-  
-    
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile
+      args:
+        API_URL: "*"
+    container_name: frontend
+    command: yarn dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../frontend:/frontend
+      - /frontend/node_modules
+    image: run
+    tty: true
+    networks:
+      - app-network
+
   prometheus:
     image: prom/prometheus:v2.45.6
     container_name: prometheus
@@ -120,13 +105,12 @@ services:
     image: grafana/grafana:9.5.20
     container_name: grafana
     volumes:
-      - ./grafana:/etc/grafana/provisioning #그라파나 설정(config) 볼륨. 대부분 불필요 하지만 놔두시는게 좋습니다.
-      - ./grafana/data:/var/lib/grafana #그라파나 대시보드 데이터. 이걸 설정 해둬야지 가상 볼륨을 날리셔도 대시보드들이 남아있습니다.
+      - ./grafana:/etc/grafana/provisioning
+      - ./grafana/data:/var/lib/grafana
     ports:
       - "3000:3000"
     networks:
       - app-network
-
 
 volumes:
   mysql-data:
