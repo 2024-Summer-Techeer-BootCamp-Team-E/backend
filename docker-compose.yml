@@ -29,6 +29,8 @@ services:
       - app-network
     depends_on:
       - mysqldb
+      - redis_container
+      - rabbitmq
     command: bash -c "
       python wait_mysql.py &&
       python manage.py makemigrations &&
@@ -61,8 +63,6 @@ services:
     volumes:
       - ./redis/data:/data
       - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
-    depends_on:
-      - backend
     labels:
       - "name=redis"
       - "mode=standalone"
