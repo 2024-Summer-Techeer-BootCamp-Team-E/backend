@@ -111,6 +111,48 @@ services:
       - "3000:3000"
     networks:
       - app-network
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.7.14-management-alpine
+    environment:
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - TZ=Asia/Seoul
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - .:/code
+    networks:
+      - app-network
+
+  celery_worker:
+      restart: always
+      build:
+        context: ./django_backend
+        dockerfile: Dockerfile
+      command: "celery -A django_backend worker --loglevel=info"
+      volumes:
+      - ./:/app
+      environment:
+        - DJANGO_SETTINGS_MODULE=django_backend.settings
+        - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+        - TZ=Asia/Seoul
+      networks:
+        - app-network
+      depends_on:
+        - rabbitmq
+
+  flower:
+    image: mher/flower
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      - FLOWER_PORT=5555
+      - TZ=Asia/Seoul
+    ports:
+      - 5555:5555
+    networks:
+      - app-network
 
 volumes:
   mysql-data:
