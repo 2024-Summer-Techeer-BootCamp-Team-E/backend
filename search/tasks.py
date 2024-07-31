@@ -28,6 +28,7 @@ def get_keyword(search_url):
   if isinstance(keyword_list, list):
     keyword = ', '.join(keyword_list)
 
+  keyword = comprehend.translate(keyword)
   search_product.category_id = category_id
   search_product.keyword = keyword
   search_product.save()

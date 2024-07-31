@@ -63,7 +63,7 @@ def get_ali(search_url):
       for product_data in products[:20]:
         product = Product(
           product_name=product_data.get('product_title'),
-          price=product_data.get('target_app_sale_price'),
+          price=product_data.get('target_sale_price'),
           delivery_charge=0,
           link=product_data.get('product_detail_url'),
           image_url=product_data.get('product_main_image_url'),
