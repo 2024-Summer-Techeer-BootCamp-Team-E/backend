@@ -9,3 +9,4 @@ redis/data/dump.rdb
 __pycache__/
 migrations/
 search/.env
+grafana.db
