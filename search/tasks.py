@@ -8,6 +8,9 @@ from .gpt import CoreWordExtractor, ProductCategorizer
 def get_keyword(search_url):
   search_product = Search.objects.get(search_url=search_url)
 
+  if search_product.keyword is not None:
+    return search_url
+
   comprehend = Comprehend()
   categorizer = ProductCategorizer()
   extracter = CoreWordExtractor()
