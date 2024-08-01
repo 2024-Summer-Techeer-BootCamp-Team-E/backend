@@ -48,6 +48,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./django_backend/static:/app/static
       - ./django_backend/media:/app/media
+      - ./nginx/log:/var/log/nginx 
     depends_on:
       - backend
     networks:
@@ -228,7 +229,7 @@ services:
     entrypoint: "filebeat -e -strict.perms=false"
     volumes:
       - ./docker-elk/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./nginx/log:/var/log/nginx # nginx log path (require same option on nginx container)
+      - ./nginx/log:/var/log/nginx  # Ensure the correct path
     depends_on:
       - logstash
       - elasticsearch

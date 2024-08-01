@@ -10,3 +10,4 @@ __pycache__/
 migrations/
 search/.env
 grafana/data/grafana.db
+nginx/log/*.log
