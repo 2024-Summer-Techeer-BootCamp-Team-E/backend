@@ -1,0 +1,18 @@
+## HTTP endpoint for health checking
+## https://www.elastic.co/guide/en/beats/filebeat/current/http-endpoint.html
+#
+
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/*.log  # 수집할 로그 파일 위치
+
+output.logstash:
+  enabled: true
+  hosts: ["logstash:5044"]
+
+setup.kibana:
+  host: "kibana:5601"
+  username: "elastic"
+  password: "changeme"
