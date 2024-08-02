@@ -1,6 +1,7 @@
 # Create your tasks here
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task
+import re
 from .models import Product, ProductManager
 from .serializers import ProductSerializer
 from environ import Env
@@ -110,9 +111,15 @@ def get_ali(search_url):
 
 @shared_task
 def get_chrome(search_url):
+  # def clean_price(price_str):
+  #   return price_str.replace(',', '')
   def clean_price(price_str):
-    return price_str.replace(',', '')
-  # Setup Chrome options
+    if isinstance(price_str, int):
+        return str(price_str)
+    cleaned_price = price_str.replace(',', '')
+    cleaned_price = re.sub(r'[^0-9]', '', cleaned_price)
+    return cleaned_price if cleaned_price else '0'
+
   chrome_options = Options()
   chrome_options.add_argument("--headless")  # Run in headless mode
   chrome_options.add_argument("--no-sandbox")
@@ -120,7 +127,8 @@ def get_chrome(search_url):
   chrome_options.binary_location = "/usr/bin/chromium"
 
   driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
-
+  driver.implicitly_wait(3)
+  driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": """ Object.defineProperty(navigator, 'webdriver', { get: () => undefined }) """})
   existing_entry = Search.objects.filter(search_url=search_url).first()
   if existing_entry:
     serializer = SearchSerializer(existing_entry)
@@ -130,39 +138,138 @@ def get_chrome(search_url):
     driver.get(search_url)
     time.sleep(3)
     wait = WebDriverWait(driver, 10)
-    product_info_list = []
 
     try:
-      # 상품명
-      name_element = wait.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "h3._22kNQuEXmb._copyable"))
-      )
-      product_name = name_element.text.strip()
+      if "search.shopping" in search_url:
+        logging.info("Finding product name element...")
+        name_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "div.top_summary_title__ViyrM h2"))
+        )
+        product_name = name_element.text.strip()
+        logging.info(f"Product Name: {product_name}")
 
-      # 가격
-      price_element = wait.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "span._1LY7DqCnwR"))
-      )
-      product_price = clean_price(price_element.text.strip())
+        # 가격
+        logging.info("Finding product price element...")
+        price_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "em.lowestPrice_num__A5gM9Z"))
+        )
+        product_price = clean_price(price_element.text.strip())
+        logging.info(f"Product Price: {product_price}")
 
-      # 배송비
-      delivery_element = wait.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "span.bd_3uare"))
-      )
-      product_delivery = clean_price(delivery_element.text.strip())
+        # 배송비
+        logging.info("Finding product delivery element...")
+        delivery_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "div.lowestPrice_delivery_fee__OZgir span.blind"))
+        )
+        product_delivery = delivery_element.text.strip().replace("배송비", "").strip()
+        logging.info(f"Product Delivery: {product_delivery}")
 
-      # 상품 이미지
-      image_element = wait.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "img.bd_2DO68"))
-      )
-      product_image_url = image_element.get_attribute("src")
+        print("Finding product image element...")
+        image_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "div.image_thumb__IB9B3 img"))
+        )
+        product_image_url = image_element.get_attribute("src")
+        print(f"Product Image: {product_image_url}")
 
+      
+      # 11번가
+      elif "11st.co.kr" in search_url:
+        logging.info("Finding product name element...")
+        name_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "h1.title"))
+        )
+        product_name = name_element.text.strip()
+        logging.info(f"Product Name: {product_name}")
+
+        # 가격
+        logging.info("Finding product price element...")
+        price_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "span.value"))
+        )
+        product_price = clean_price(price_element[1].text.strip())
+        logging.info(f"Product Price: {product_price}")
+
+        # 배송비
+        delivery_element = wait.until(
+            EC.visibility_of_element_located((By.XPATH, "//dt[contains(., '배송비')]"))
+        )
+        product_delivery = clean_price(delivery_element[0].text.strip())
+        
+        print("Finding product image element...")
+        image_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "img[onerror=\"this.src='https://cdn.011st.com/11dims/resize/600x600/quality/75/11src/img/product/no_image.gif'\"]"))
+        )
+        product_image_url = image_element.get_attribute("src")
+        print(f"Product Image: {product_image_url}")
+
+      #네이버 쇼핑
+      elif "smartstore.naver" in search_url:
+        logging.info("Finding product name element...")
+        name_element = wait.until(
+          EC.visibility_of_element_located((By.CSS_SELECTOR, "h3._22kNQuEXmb._copyable"))
+        )
+        product_name = name_element.text.strip()
+
+        # 가격
+        price_element = wait.until(
+          EC.visibility_of_element_located((By.CSS_SELECTOR, "span._1LY7DqCnwR"))
+        )
+        product_price = clean_price(price_element.text.strip())
+
+        # 배송비
+        delivery_element = wait.until(
+          EC.visibility_of_element_located((By.CSS_SELECTOR, "span.bd_3uare"))
+        )
+        product_delivery = clean_price(delivery_element.text.strip())
+
+        # 상품 이미지
+        image_element = wait.until(
+          EC.visibility_of_element_located((By.CSS_SELECTOR, "img.bd_2DO68"))
+        )
+        product_image_url = image_element.get_attribute("src")
+        
+      # 쿠팡 
+      elif "coupang.com" in search_url:
+        logging.info("Finding product name element...")
+        name_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "h1.prod-buy-header__title"))
+        )
+        product_name = name_element.text.strip()
+        logging.info(f"Product Name: {product_name}")
+
+        # 가격
+        logging.info("Finding product price element...")
+        price_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "span.total-price strong"))
+        )
+        product_price = clean_price(price_element.text.strip())
+        logging.info(f"Product Price: {product_price}")
+
+        # 배송비
+        logging.info("Finding product elivery element...")
+        delivery_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "em.prod-txt-bold"))
+        )
+        product_delivery = clean_price(delivery_element.text.strip())
+        logging.info(f"Product Price: {product_delivery}")
+
+        print("Finding product image element...")
+        image_element = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "img.prod-image__detail"))
+        )
+        product_image_url = image_element.get_attribute("src")
+        print(f"Product Image: {product_image_url}")
+
+      else:
+        driver.quit()
+        return JsonResponse({'error': '지원되지 않는 URL입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+  
       # URL
       link = search_url
 
       # Combine product info
-      combined_info = f"{product_name} - {product_price} - {link} - {product_delivery} - {product_image_url}"
-      product_info_list.append(combined_info)
+      # combined_info = f"{product_name} - {product_price} - {link} - {product_delivery} - {product_image_url}"
+      # product_info_list.append(combined_info)
 
       product_data = {
         "name": product_name,
@@ -181,7 +288,7 @@ def get_chrome(search_url):
 
     except Exception as e:
       logger.error(f"An error occurred: {str(e)}")
-      print(f"An error occurred: {str(e)}")
+      logging.info(f"An error occurred: {str(e)}")
       return {'error': str(e)}
 
     finally:
